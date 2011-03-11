@@ -30,21 +30,13 @@ function mailsystem_defaults() {
 /**
  * Returns the current mail_system settings.
  *
- * @param $module
- *
- * @return
- *   NULL if $module is set but does not match a mail_system key.
- *   (string) The class name if $module is set and matches a mail_system key.
- *   (array) The contents of the mail_system variable if $module is NULL.
+ * @return The contents of the mail_system variable merged with its defaults.
  */
-function mailsystem_get($module = NULL) {
-  $mail_system = array_merge(
+function mailsystem_settings($module = NULL) {
+  return array_merge(
     mailsystem_defaults(),
     variable_get('mail_system', mailsystem_defaults())
   );
-  return $module
-    ? ( isset($mail_system[$module]) ? $mail_system[$module] : NULL )
-    : $mail_system;
 }
 
 /**
@@ -57,7 +49,7 @@ function mailsystem_get($module = NULL) {
  *   - $classname is a class that implements MailSystemInterface.
  */
 function mailsystem_enable($setting) {
-  variable_set('mail_system', array_merge(mailsystem_get(), $setting));
+  variable_set('mail_system', array_merge(mailsystem_settings(), $setting));
 }
 
 
@@ -80,7 +72,7 @@ function mailsystem_disable($setting) {
     'mail_system',
     array_merge(
       mailsystem_defaults(),
-      array_diff_key(array_diff(mailsystem_get(), $setting), $setting)
+      array_diff_key(array_diff(mailsystem_settings(), $setting), $setting)
     )
   );
 }
