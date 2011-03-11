@@ -21,10 +21,26 @@ function mailsystem_menu() {
 }
 
 /**
+ * Returns the id for the default mail_system setting.
+ */
+function mailsystem_default_id() {
+  // @todo: Is there a way to get this from core?
+  return 'default-system';
+}
+
+/**
+ * Returns the value for the default mail_system setting.
+ */
+function mailsystem_default_value() {
+  // @todo: Is there a way to get this from core?
+  return 'DefaultMailSystem';
+}
+
+/**
  * Returns the default settings for the mail_system variable.
  */
 function mailsystem_defaults() {
-  return array('default-system' => 'DefaultMailSystem');
+  return array(mailsystem_default_id() => mailsystem_default_value());
 }
 
 /**
