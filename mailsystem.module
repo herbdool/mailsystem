@@ -19,3 +19,68 @@ function mailsystem_menu() {
   );
   return $items;
 }
+
+/**
+ * Returns the default settings for the mail_system variable.
+ */
+function mailsystem_defaults() {
+  return array('default-system' => 'DefaultMailSystem');
+}
+
+/**
+ * Returns the current mail_system settings.
+ *
+ * @param $module
+ *
+ * @return
+ *   NULL if $module is set but does not match a mail_system key.
+ *   (string) The class name if $module is set and matches a mail_system key.
+ *   (array) The contents of the mail_system variable if $module is NULL.
+ */
+function mailsystem_get($module = NULL) {
+  $mail_system = array_merge(
+    mailsystem_defaults(),
+    variable_get('mail_system', mailsystem_defaults())
+  );
+  return $module
+    ? ( isset($mail_system[$module]) ? $mail_system[$module] : NULL )
+    : $mail_system;
+}
+
+/**
+ * Helps other modules safely set their own key within mail_system.  This
+ * function should be called from the other module's hook_enable() function.
+ *
+ * @param $setting  An associative array ($module => $classname) where $module
+ * will be using $classname to send its mail, and:
+ *   - $module is the machine-readable module name.
+ *   - $classname is a class that implements MailSystemInterface.
+ */
+function mailsystem_enable($setting) {
+  variable_set('mail_system', array_merge(mailsystem_get(), $setting));
+}
+
+
+/**
+ * Helps other modules safely remove their settings from mail_system.  This
+ * function should be called from the other module's hook_disable() function.
+ *
+ * @param $setting  An associative array ($module => $classname) describing
+ * a module and associated MailSystemInterface class that are being disabled.
+ *   - $module is the machine-readable module name.
+ *   - $classname is a class that implements MailSystemInterface.
+ *
+ * If $classname is empty, only the $module entry is removed.
+ *
+ * @param $class
+ *   The name of the class to be removed, if any.
+ */
+function mailsystem_disable($setting) {
+  variable_set(
+    'mail_system',
+    array_merge(
+      mailsystem_defaults(),
+      array_diff_key(array_diff(mailsystem_get(), $setting), $setting)
+    )
+  );
+}
