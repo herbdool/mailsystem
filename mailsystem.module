@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Provide UI for controlling the mail_system variable.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function mailsystem_menu() {
+  $items['admin/config/system/mailsystem'] = array(
+    'title' => 'Mail System',
+    'description' => 'Configure per-module Mail System settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mailsystem_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'mailsystem.admin.inc',
+  );
+  return $items;
+}

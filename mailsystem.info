@@ -1,0 +1,6 @@
+name = Mail System
+description = "Provides a user interface for per-module and site-wide mail_system selection."
+configure = admin/config/system/mailsystem
+package = Mail
+core = 7.x
+php = 5.0
