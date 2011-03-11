@@ -6,50 +6,86 @@
  */
 function mailsystem_admin_settings() {
   $form = array('#submit' => array('mailsystem_admin_settings_submit'));
-  $mail_system = variable_get('mail_system', array('default-system' => 'DefaultMailSystem'));
-  $form['mailsystem'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Mail System Settings'),
-    '#description' => t('Drupal provides two Mail System implementations, %default and %test.  Other modules may provide their own implementations.  For each enabled module, you can choose which Mail System that module will use when sending mail.  You can also choose a sitewide default for any modules not listed here.', array('%default' => 'DefaultMailSystem', '%test' => 'TestingMailSystem')),
-    '#collapsible' => FALSE,
-    '#tree' => TRUE,
-  );
+  $mail_system = mailsystem_get();
+  $mail_defaults = mailsystem_defaults();
+  $def_id = array_shift(array_keys($mail_defaults));
+  $def_class = array_shift(array_values($mail_defaults));
   $mailsystem_classes = mailsystem_get_classes($mail_system);
-  $form['mailsystem']['default-system'] = array(
-    '#type' => 'select',
-    '#title' => t('Site-wide default for all modules'),
-    '#options' => $mailsystem_classes,
-    '#default_value' =>
-      empty($mail_system['default-system'])
-        ? 'DefaultMailSystem'
-        : $mail_system['default-system'],
-  );
-  array_unshift($mailsystem_classes, 'Site-wide default');
-  unset($mail_system['default-system']);
   $descriptions = array();
   foreach(system_rebuild_module_data() as $item) {
     if ($item->status) {
-      $summary = t($item->info['package'])
-        . ' | ' . t($item->info['name'])
-        . ' | ' . t(strip_tags($item->info['description']));
-      $descriptions[$item->name] = text_summary($summary, NULL, 80);
+      $descriptions[$item->name] = t($item->info['package'])
+        . ' » ' . t($item->info['name']);
     }
   }
   asort($descriptions);
-  foreach($mail_system as $module => $class) {
-    $form['mailsystem'][$module] = array(
+  $form['mailsystem'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Mail System Settings'),
+    '#description' => t(
+      'Drupal provides a default mail system called %def_class.'
+      . ' Modules may provide additional mail systems.'
+      . ' Each mail system is associated with one or more identifiers,'
+      . ' composed of a %module and an optional %key.'
+      . ' Each email being sent also has a %module and a %key.'
+      . ' To decide which mail system to use, drupal uses the following'
+      . ' search order:'
+      . '<ol><li>The mail system associated with the %module and %key, if any</li>'
+      . '<li>The mail system associated with the %module, if any</li>'
+      . '<li>The mail system associated with %def_id</li></ol>',
+      array(
+        '%module' => '$module', '%key' => '$key',
+        '%def_id' => $def_id, '%def_class' => $def_class
+      )
+    ),
+    '#collapsible' => FALSE,
+    '#tree' => TRUE,
+  );
+  $form['mailsystem'][$def_id] = array(
+    '#type' => 'select',
+    '#title' => t(
+      'Default (%def_id) mail system',
+      array('%def_id' => $def_id)
+    ),
+    '#options' => $mailsystem_classes,
+    '#default_value' => $mail_system[$def_id],
+  );
+  array_unshift($mailsystem_classes, t('Default (!def_id)', array('!def_id' => $def_id)));
+  foreach(array_diff_key($mail_system, $mail_defaults) as $id => $class) {
+    $module = $id;
+    while ($module && empty($descriptions[$module])) {
+      // Remove a key from the end
+      $module = implode('_',explode('_', $module, -1));
+    }
+    $key = array_pop(explode($module. '_', $id, 2));
+    $form['mailsystem'][$id] = array(
       '#type' => 'select',
-      '#title' => $descriptions[$module],
+      '#title' => array_pop(explode(' » ', $descriptions[$module])) . ' (' . $key . ')',
       '#options' => $mailsystem_classes,
       '#default_value' => $class,
     );
     unset($descriptions[$module]);
   }
-  array_unshift($descriptions, '-- Select --');
-  $form['mailsystem_additional'] = array(
+  $form['identifier'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('New Setting'),
+    '#description' => t(
+      'Add a Module (%module) and optional Key (%key) to the Settings list.',
+      array('%module' => '$module', '%key' => '$key' )
+    ),
+    '#collapsible' => FALSE,
+    '#tree' => TRUE,
+  );
+  array_unshift($descriptions, t('-- Select --'));
+  $form['identifier']['module'] = array(
     '#type' => 'select',
-    '#title' => t('Add a module to the above list'),
+    '#title' => t('Module (%module)', array('%module' => '$module')),
     '#options' => $descriptions,
+  );
+  $form['identifier']['key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Key (%key)', array('%key' => '$key')),
+    '#size' => 80,
   );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -76,11 +112,13 @@ function mailsystem_admin_settings_submit($form, &$form_state) {
     }
   }
   unset($form_state['values']['mailsystem']);
-  $module = $form_state['values']['mailsystem_additional'];
-  if (!empty($module)) {
-    $mail_system[$module] = $mail_system['default-system'];
+  if ($id = $form_state['values']['identifier']['module']) {
+    if (!empty($form_state['values']['identifier']['key'])) {
+      $id .= '_' . $form_state['values']['identifier']['key'];
+    }
+    $mail_system[$id] = array_shift(mailsystem_defaults());
   }
-  unset($form_state['values']['mailsystem_additional']);
+  unset($form_state['values']['identifier']);
   variable_set('mail_system',$mail_system);
 }
 
@@ -112,12 +150,10 @@ function mailsystem_get_classes(array $mail_system) {
         $mailsystem_classes[$classname] = $classname;
       }
     }
-    // If the above method fails, just show the already-configured values.
-    if (empty($mailsystem_classes)) {
-      foreach (array_keys(array_flip($mail_system)) as $classname) {
-        $mailsystem_classes[$classname] = $classname;
-      }
-    }
+  }
+  // Always include the classes specified in the $mail_system variable.
+  foreach (array_keys(array_flip($mail_system)) as $classname) {
+    $mailsystem_classes[$classname] = $classname;
   }
   return $mailsystem_classes;
 }
