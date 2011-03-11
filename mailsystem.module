@@ -32,7 +32,7 @@ function mailsystem_defaults() {
  *
  * @return The contents of the mail_system variable merged with its defaults.
  */
-function mailsystem_settings($module = NULL) {
+function mailsystem_get() {
   return array_merge(
     mailsystem_defaults(),
     variable_get('mail_system', mailsystem_defaults())
@@ -48,8 +48,8 @@ function mailsystem_settings($module = NULL) {
  *   - $module is the machine-readable module name.
  *   - $classname is a class that implements MailSystemInterface.
  */
-function mailsystem_enable($setting) {
-  variable_set('mail_system', array_merge(mailsystem_settings(), $setting));
+function mailsystem_set($setting) {
+  variable_set('mail_system', array_merge(mailsystem_get(), $setting));
 }
 
 
@@ -67,12 +67,12 @@ function mailsystem_enable($setting) {
  * @param $class
  *   The name of the class to be removed, if any.
  */
-function mailsystem_disable($setting) {
+function mailsystem_clear($setting) {
   variable_set(
     'mail_system',
     array_merge(
       mailsystem_defaults(),
-      array_diff_key(array_diff(mailsystem_settings(), $setting), $setting)
+      array_diff_key(array_diff(mailsystem_get(), $setting), $setting)
     )
   );
 }
