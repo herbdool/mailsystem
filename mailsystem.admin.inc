@@ -12,7 +12,7 @@ function mailsystem_admin_settings() {
   $def_class = array_shift(array_values($mail_defaults));
   $mailsystem_classes = mailsystem_get_classes($mail_system);
   $descriptions = array();
-  foreach(system_rebuild_module_data() as $item) {
+  foreach (system_rebuild_module_data() as $item) {
     if ($item->status) {
       $descriptions[$item->name] = t($item->info['package'])
         . ' » ' . t($item->info['name']);
@@ -51,13 +51,13 @@ function mailsystem_admin_settings() {
     '#default_value' => $mail_system[$def_id],
   );
   array_unshift($mailsystem_classes, t('Default (!def_id)', array('!def_id' => $def_id)));
-  foreach(array_diff_key($mail_system, $mail_defaults) as $id => $class) {
+  foreach (array_diff_key($mail_system, $mail_defaults) as $id => $class) {
     $module = $id;
     while ($module && empty($descriptions[$module])) {
       // Remove a key from the end
-      $module = implode('_',explode('_', $module, -1));
+      $module = implode('_', explode('_', $module, -1));
     }
-    $key = array_pop(explode($module. '_', $id, 2));
+    $key = array_pop(explode($module . '_', $id, 2));
     $form['mailsystem'][$id] = array(
       '#type' => 'select',
       '#title' => array_pop(explode(' » ', $descriptions[$module])) . ' (' . $key . ')',
@@ -89,7 +89,7 @@ function mailsystem_admin_settings() {
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
+    '#value' => t('Save settings'),
   );
   return $form;
 }
@@ -105,7 +105,7 @@ function mailsystem_admin_settings_submit($form, &$form_state) {
       : $form_state['values']['default-system']
     )
   );
-  foreach(element_children($form_state['values']['mailsystem']) as $module) {
+  foreach (element_children($form_state['values']['mailsystem']) as $module) {
     $class = $form_state['values']['mailsystem'][$module];
     if (!empty($class)) {
       $mail_system[$module] = $class;
@@ -119,7 +119,7 @@ function mailsystem_admin_settings_submit($form, &$form_state) {
     $mail_system[$id] = array_shift(mailsystem_defaults());
   }
   unset($form_state['values']['identifier']);
-  variable_set('mail_system',$mail_system);
+  variable_set('mail_system', $mail_system);
 }
 
 
@@ -141,7 +141,7 @@ function mailsystem_get_classes(array $mail_system) {
         array(':type' => 'class', ':name' => '%MailSystem'))
       ->execute()
       ->fetchCol();
-    foreach($files as $file) {
+    foreach ($files as $file) {
       include_once($file);
     }
     foreach (get_declared_classes() as $classname) {
