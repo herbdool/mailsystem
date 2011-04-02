@@ -8,8 +8,10 @@ function mailsystem_admin_settings() {
   $form = array('#submit' => array('mailsystem_admin_settings_submit'));
   $mail_system = mailsystem_get();
   $mail_defaults = mailsystem_defaults();
-  $def_id = array_shift(array_keys($mail_defaults));
-  $def_class = array_shift(array_values($mail_defaults));
+  $keys = array_keys($mail_default);
+  $def_id = array_shift($keys);
+  $values = array_values($mail_defaults);
+  $def_class = array_shift($values);
   $mailsystem_classes = mailsystem_get_classes($mail_system);
   $descriptions = array();
   foreach (system_rebuild_module_data() as $item) {
@@ -57,10 +59,12 @@ function mailsystem_admin_settings() {
       // Remove a key from the end
       $module = implode('_', explode('_', $module, -1));
     }
-    $key = array_pop(explode($module . '_', $id, 2));
+    $keys = explode($module . '_', $id, 2);
+    $key = array_pop($keys);
+    $titles = explode(' » ', $descriptions[$module]);
     $form['mailsystem'][$id] = array(
       '#type' => 'select',
-      '#title' => array_pop(explode(' » ', $descriptions[$module])) . ' (' . $key . ')',
+      '#title' => array_pop($titles) . ' (' . $key . ')',
       '#options' => $mailsystem_classes,
       '#default_value' => $class,
     );
