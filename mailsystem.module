@@ -57,14 +57,14 @@ function mailsystem_get() {
 
 /**
  * Helps other modules safely set their own key within mail_system.  This
- * function should be called from the other module's hook_enable() function.
+ * function should be called from hook_enable() implementations.
  *
  * @param $setting  An associative array ($module => $classname) where $module
  * will be using $classname to send its mail, and:
  *   - $module is the machine-readable module name.
  *   - $classname is a class that implements MailSystemInterface.
  */
-function mailsystem_set($setting) {
+function mailsystem_set(array $setting) {
   variable_set('mail_system', array_merge(mailsystem_get(), $setting));
 }
 
@@ -83,7 +83,7 @@ function mailsystem_set($setting) {
  * @param $class
  *   The name of the class to be removed, if any.
  */
-function mailsystem_clear($setting) {
+function mailsystem_clear(array $setting) {
   variable_set(
     'mail_system',
     array_merge(
