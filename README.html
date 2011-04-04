@@ -1,0 +1,87 @@
+<p>Provides an Administrative UI and Developers API for safely updating the <a href="http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7">mail_system</a> configuration variable.</p>
+<h2>Administrative UI</h2>
+<p>The administrative interface is at <u>admin/config/system/mailsystem</u>. A <a href="http://drupal.org/node/1089888">screenshot</a> is available.</p>
+<h2>Used by;</h2>
+<ul>
+  <li><a href="http://drupal.org/project/htmlmail">HTML Mail</a></li>
+  <li><a href="http://drupal.org/project/postmark">Postmark</a></li>
+</ul>
+<h2>Developers API</h2>
+<p>A module <em>example</em> with a <a href="http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7">MailSystemInterface</a> implementation called <code>ExampleMailSystem</code> should add the following in its <code>example.install</code> file:</p>
+<pre>
+<code>/**
+ * Implements hook_enable().
+ */
+function example_enable() {
+  mailsystem_set(array('example' => 'ExampleMailSystem'));
+}
+/**
+ * Implements hook_disable().
+ */
+function example_disable() {
+  mailsystem_clear(array('example' => 'ExampleMailSystem'));
+}
+</code>
+</pre>
+<p>The above settings allow mail sent by <code>example</code> to use <code>ExampleMailSystem</code>. To make <code>ExampleMailSystem</code> the site-wide default for sending mail:</p>
+<pre>
+<code>mailsystem_set(array(mailsystem_default_id() => 'ExampleMailSystem'));
+</code>
+</pre>
+<p>To restore the default mail system:</p>
+<pre>
+<code>mailsystem_set(array(mailsystem_default_id() => mailsystem_default_value()));
+</code>
+</pre>
+<p>Or simply:</p>
+<pre>
+<code>mailsystem_set(mailsystem_defaults());
+</code>
+</pre>
+<p>If module <code>example</code> relies on dependency <code>foo</code> and its <code>FooMailSystem</code> class, then the <code>example.install</code> code should like like this:</p>
+<pre>
+<code>/**
+ * Implements hook_enable().
+ */
+function example_enable() {
+  mailsystem_set(array('example' => 'FooMailSystem'));
+}
+/**
+ * Implements hook_disable().
+ */
+function example_disable() {
+  mailsystem_clear(array('example' => ''));
+}
+</code>
+</pre>
+<p>If module <code>example</code> only wants to use <code>FooMailSystem</code> when sending emails with a key of <code>examail</code>, then the <code>example.install</code> code should look like this:</p>
+<pre>
+<code>/**
+ * Implements hook_enable().
+ */
+function example_enable() {
+  mailsystem_set(array('example_examail' => 'FooMailSystem'));
+}
+/**
+ * Implements hook_disable().
+ */
+function example_disable() {
+  mailsystem_clear(array('example_examail' => ''));
+}
+</code>
+</pre>
+<h2>References</h2>
+<dl>
+  <dt><strong>drupal_mail_system() API documentation</strong>:</dt>
+  <dd>
+    <p>http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7</p>
+  </dd>
+  <dt><strong>MailSystemInterface API documentation</strong>:</dt>
+  <dd>
+    <p>http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7</p>
+  </dd>
+  <dt><strong>Creating HTML formatted mails in Drupal 7</strong></dt>
+  <dd>
+    <p>http://drupal.org/node/900794</p>
+  </dd>
+</dl>
