@@ -125,11 +125,10 @@ function mailsystem_admin_settings_submit($form, &$form_state) {
   variable_set('mail_system', $mail_system);
 }
 
-
 /**
  * Returns a list of classes which implement MailSystemInterface.
  */
-function mailsystem_get_classes(array $mail_system) {
+function &mailsystem_get_classes(array $mail_system) {
   $mailsystem_classes = &drupal_static(__FUNCTION__);
   if (!isset($mailsystem_classes)) {
     // @todo Is there a better way to load all mail-related class files?
@@ -157,11 +156,10 @@ function mailsystem_get_classes(array $mail_system) {
         $mailsystem_classes[$classname] = $classname;
       }
     }
+    foreach (array_keys(array_flip($mail_system)) as $classname) {
+      $mailsystem_classes[$classname] = $classname;
+    }
+    ksort($mailsystem_classes);
   }
-  // Always include the classes specified in the $mail_system variable.
-  foreach (array_keys(array_flip($mail_system)) as $classname) {
-    $mailsystem_classes[$classname] = $classname;
-  }
-  ksort($mailsystem_classes);
   return $mailsystem_classes;
 }
