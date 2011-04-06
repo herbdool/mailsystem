@@ -14,8 +14,8 @@ A [screenshot](http://drupal.org/node/1089888) is available.
 
 ## Developers API
 
-A module *example* with a
-[MailSystemInterface](http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7)
+A module `example` with a
+[`MailSystemInterface`](http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7)
 implementation called `ExampleMailSystem` should add the following in its
 `example.install` file:
 

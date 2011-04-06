@@ -8,14 +8,16 @@ function mailsystem_admin_settings() {
   $form = array('#submit' => array('mailsystem_admin_settings_submit'));
   $mail_system = mailsystem_get();
   $mail_defaults = mailsystem_defaults();
-  list($def_id) = array_slice(array_keys($mail_defaults),0,1);
+  list($def_id) = array_slice(array_keys($mail_defaults), 0, 1);
   $def_class = $mail_defaults[$def_id];
   $mailsystem_classes = mailsystem_get_classes($mail_system);
   $descriptions = array();
   foreach (system_rebuild_module_data() as $item) {
     if ($item->status) {
-      $descriptions[$item->name] = t($item->info['package'])
-        . ' » ' . t($item->info['name']);
+      $descriptions[$item->name] = (
+        empty($item->info['package'])
+        ? '' : t($item->info['package'])
+      ) . ' » ' . t($item->info['name']);
     }
   }
   asort($descriptions);
@@ -125,7 +127,7 @@ function mailsystem_admin_settings_submit($form, &$form_state) {
 
 
 /**
- * Returns a list of classes that implement MailSystemInterface.
+ * Returns a list of classes which implement MailSystemInterface.
  */
 function mailsystem_get_classes(array $mail_system) {
   $mailsystem_classes = &drupal_static(__FUNCTION__);
@@ -134,12 +136,16 @@ function mailsystem_get_classes(array $mail_system) {
     $files = db_select('registry', 'registry')
       ->distinct()
       ->fields('registry', array('filename'))
-      ->where("type=:type AND name like :name",
-        // Making the HUGE assumption that all classes that implement
-        // MailSystemInterface have names ending in 'MailSystem'.
-        // But what else can I do?  Require Reflection Class?
-        // Write a parser and load the contents of each file?
-        array(':type' => 'class', ':name' => '%MailSystem'))
+      ->where("type=:type AND ( name like :name OR filename like :filename )",
+        // Making the HUGE assumption that all classes which implement
+        // MailSystemInterface have names ending in 'MailSystem' or
+        // filenames containing '.mail.'.
+        array(
+          ':type' => 'class',
+          ':name' => '%MailSystem'
+          ':filename' => '%.mail.%'
+        )
+      )
       ->execute()
       ->fetchCol();
     foreach ($files as $file) {
