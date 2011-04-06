@@ -136,14 +136,14 @@ function mailsystem_get_classes(array $mail_system) {
     $files = db_select('registry', 'registry')
       ->distinct()
       ->fields('registry', array('filename'))
-      ->where("type=:type AND ( name like :name OR filename like :filename )",
+      ->where("type=:type AND ( filename like :filename OR name like :name )",
         // Making the HUGE assumption that all classes which implement
-        // MailSystemInterface have names ending in 'MailSystem' or
-        // filenames containing '.mail.'.
+        // MailSystemInterface have filenames containing '.mail.' or
+        // classnames ending in 'MailSystem'.
         array(
           ':type' => 'class',
-          ':name' => '%MailSystem'
-          ':filename' => '%.mail.%'
+          ':name' => '%MailSystem',
+          ':filename' => '%.mail.%',
         )
       )
       ->execute()
@@ -162,5 +162,6 @@ function mailsystem_get_classes(array $mail_system) {
   foreach (array_keys(array_flip($mail_system)) as $classname) {
     $mailsystem_classes[$classname] = $classname;
   }
+  ksort($mailsystem_classes);
   return $mailsystem_classes;
 }
