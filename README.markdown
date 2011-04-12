@@ -1,3 +1,5 @@
+# [Mail System](http://drupal.org/project/mailsystem)
+
 Provides an Administrative UI and Developers API for safely updating the
 [mail_system](http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7)
 configuration variable.

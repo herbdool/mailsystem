@@ -1,19 +1,21 @@
+                                 [1]Mail System
+
    Provides an Administrative UI and Developers API for safely updating
-   the [1]mail_system configuration variable.
+   the [2]mail_system configuration variable.
 
 Administrative UI
 
    The administrative interface is at admin/config/system/mailsystem. A
-   [2]screenshot is available.
+   [3]screenshot is available.
 
 Used by;
 
-     * [3]HTML Mail
-     * [4]Postmark
+     * [4]HTML Mail
+     * [5]Postmark
 
 Developers API
 
-   A module example with a [5]MailSystemInterface implementation called
+   A module example with a [6]MailSystemInterface implementation called
    ExampleMailSystem should add the following in its example.install file:
 /**
  * Implements hook_enable().
@@ -90,8 +92,9 @@ References
 
 References
 
-   1. http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7
-   2. http://drupal.org/node/1089888
-   3. http://drupal.org/project/htmlmail
-   4. http://drupal.org/project/postmark
-   5. http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7
+   1. http://drupal.org/project/mailsystem
+   2. http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7
+   3. http://drupal.org/node/1089888
+   4. http://drupal.org/project/htmlmail
+   5. http://drupal.org/project/postmark
+   6. http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7
