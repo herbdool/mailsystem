@@ -156,8 +156,10 @@ function &mailsystem_get_classes(array $mail_system) {
         $mailsystem_classes[$classname] = $classname;
       }
     }
-    foreach (array_keys(array_flip($mail_system)) as $classname) {
-      $mailsystem_classes[$classname] = $classname;
+    foreach (array_unique(array_values($mail_system)) as $classname) {
+      if ($classname && is_string($classname)) {
+        $mailsystem_classes[$classname] = $classname;
+      }
     }
     ksort($mailsystem_classes);
   }
