@@ -46,7 +46,7 @@ function mailsystem_admin_settings() {
   $form['mailsystem'][$def_id] = array(
     '#type' => 'select',
     '#title' => t(
-      'Default (%def_id) mail system',
+      'Site-wide default (%def_id) mail system',
       array('%def_id' => $def_id)
     ),
     '#options' => $mailsystem_classes,
