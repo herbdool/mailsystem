@@ -17,7 +17,7 @@ function mailsystem_admin_settings() {
       $descriptions[$item->name] = (
         empty($item->info['package'])
         ? '' : t($item->info['package'])
-      ) . ' » ' . t($item->info['name']);
+      ) . ' » ' . t($item->info['name'] . ' module');
     }
   }
   asort($descriptions);
@@ -60,12 +60,14 @@ function mailsystem_admin_settings() {
       // Remove a key from the end
       $module = implode('_', explode('_', $module, -1));
     }
-    list($key) = array_slice(explode($module . '_', $id, 2), -1, 1);
     // Set $title to the human-readable module name.
     list($title) = array_slice(explode(' » ', $descriptions[$module]), -1, 1);
+    if ($key = substr($id, strlen($module) + 1)) {
+      $title .= " ($key key)";
+    }
     $form['mailsystem'][$id] = array(
       '#type' => 'select',
-      '#title' => $title . ' module (key = ' . $key . ')',
+      '#title' => $title,
       '#options' => $mailsystem_classes,
       '#default_value' => $class,
     );
