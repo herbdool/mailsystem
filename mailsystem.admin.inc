@@ -8,8 +8,6 @@ function mailsystem_admin_settings() {
   $form = array('#submit' => array('mailsystem_admin_settings_submit'));
   $mail_system = mailsystem_get();
   $mail_defaults = mailsystem_defaults();
-  list($def_id) = array_slice(array_keys($mail_defaults), 0, 1);
-  $def_class = $mail_defaults[$def_id];
   $mailsystem_classes = mailsystem_get_classes($mail_system);
   $descriptions = array();
   foreach (system_rebuild_module_data() as $item) {
@@ -37,22 +35,22 @@ function mailsystem_admin_settings() {
       . '<li>The mail system associated with %def_id</li></ol>',
       array(
         '%module' => '$module', '%key' => '$key',
-        '%def_id' => $def_id, '%def_class' => $def_class
+        '%def_id' => mailsystem_default_id(),
+        '%def_class' => mailsystem_default_value(),
       )
     ),
     '#collapsible' => FALSE,
     '#tree' => TRUE,
   );
-  $form['mailsystem'][$def_id] = array(
+  $form['mailsystem'][mailsystem_default_id()] = array(
     '#type' => 'select',
-    '#title' => t(
-      'Site-wide default (%def_id) mail system',
-      array('%def_id' => $def_id)
-    ),
+    '#title' => t('Site-wide default mail system'),
     '#options' => $mailsystem_classes,
-    '#default_value' => $mail_system[$def_id],
+    '#default_value' => $mail_system[mailsystem_default_id()],
   );
-  array_unshift($mailsystem_classes, t('Remove this setting (reset to !def_id)', array('!def_id' => $def_id)));
+  $mailsystem_classes = array(
+    mailsystem_default_id() => t('Remove this setting.')
+  ) + $mailsystem_classes;
   foreach (array_diff_key($mail_system, $mail_defaults) as $id => $class) {
     // Separate $id into $module and $key.
     $module = $id;
@@ -133,7 +131,7 @@ function mailsystem_admin_settings_submit($form, &$form_state) {
     if (!empty($form_state['values']['identifier']['key'])) {
       $id .= '_' . $form_state['values']['identifier']['key'];
     }
-    list($mail_system[$id]) = array_slice(mailsystem_defaults(), 0, 1);
+    $mail_system[$id] = $mail_system[mailsystem_default_id()];
   }
   unset($form_state['values']['identifier']);
   variable_set('mail_system', $mail_system);
