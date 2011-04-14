@@ -52,18 +52,20 @@ function mailsystem_admin_settings() {
     '#options' => $mailsystem_classes,
     '#default_value' => $mail_system[$def_id],
   );
-  array_unshift($mailsystem_classes, t('Default (!def_id)', array('!def_id' => $def_id)));
+  array_unshift($mailsystem_classes, t('Remove this setting (reset to !def_id)', array('!def_id' => $def_id)));
   foreach (array_diff_key($mail_system, $mail_defaults) as $id => $class) {
+    // Separate $id into $module and $key.
     $module = $id;
     while ($module && empty($descriptions[$module])) {
       // Remove a key from the end
       $module = implode('_', explode('_', $module, -1));
     }
     list($key) = array_slice(explode($module . '_', $id, 2), -1, 1);
+    // Set $title to the human-readable module name.
     list($title) = array_slice(explode(' » ', $descriptions[$module]), -1, 1);
     $form['mailsystem'][$id] = array(
       '#type' => 'select',
-      '#title' => $title . ' (' . $key . ')',
+      '#title' => $title . ' module (key = ' . $key . ')',
       '#options' => $mailsystem_classes,
       '#default_value' => $class,
     );
@@ -73,21 +75,31 @@ function mailsystem_admin_settings() {
     '#type' => 'fieldset',
     '#title' => t('New Setting'),
     '#description' => t(
-      'Add a Module (%module) and optional Key (%key) to the Settings list.',
-      array('%module' => '$module', '%key' => '$key' )
-    ),
+      'Any calls to <a href="!mail"><code>drupal_mail()</code></a> must '
+      . 'specify the name of the sending module and and a message key. The '
+      . '<a href="!system"><code>drupal_mail_system()</code></a> function '
+      . 'determines which mailer will send the message, by selecting the '
+      . 'first match from the following list:'
+      array(
+        '!mail' => 'http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail/7'
+        '!system' => 'http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7',
+      )
+    ) . '<ol><li>' . t('The mail system for that module and key.')
+    . '</li><li>' . t('The mail system for that module.')
+    . '</li><li>' . t('The site-wide default mail system.')
+    . '</li></ol>',
     '#collapsible' => FALSE,
     '#tree' => TRUE,
   );
   array_unshift($descriptions, t('-- Select --'));
   $form['identifier']['module'] = array(
     '#type' => 'select',
-    '#title' => t('Module (%module)', array('%module' => '$module')),
+    '#title' => t('Module'),
     '#options' => $descriptions,
   );
   $form['identifier']['key'] = array(
     '#type' => 'textfield',
-    '#title' => t('Key (%key)', array('%key' => '$key')),
+    '#title' => t('Key'),
     '#size' => 80,
   );
   $form['submit'] = array(
