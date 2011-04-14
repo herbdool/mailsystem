@@ -79,7 +79,7 @@ function mailsystem_admin_settings() {
       . 'specify the name of the sending module and and a message key. The '
       . '<a href="!system"><code>drupal_mail_system()</code></a> function '
       . 'determines which mailer will send the message, by selecting the '
-      . 'first match from the following list:'
+      . 'first match from the following list:',
       array(
         '!mail' => 'http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail/7'
         '!system' => 'http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7',
