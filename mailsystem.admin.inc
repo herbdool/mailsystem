@@ -30,11 +30,12 @@ function mailsystem_admin_settings() {
       . ' Each email being sent also has a %module and a %key.'
       . ' To decide which mail system to use, drupal uses the following'
       . ' search order:'
-      . '<ol><li>The mail system associated with the %module and %key, if any</li>'
-      . '<li>The mail system associated with the %module, if any</li>'
-      . '<li>The site-wide default mail system</li></ol>',
+      . '<ol><li>The mail system associated with the %module and %key, if any.</li>'
+      . '<li>The mail system associated with the %module, if any.</li>'
+      . '<li>The site-wide default mail system.</li></ol>',
       array(
         '%module' => 'module', '%key' => 'key',
+        '%def_class' => mailsystem_default_value(),
       )
     ),
     '#collapsible' => FALSE,
