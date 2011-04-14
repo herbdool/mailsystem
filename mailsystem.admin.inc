@@ -113,16 +113,17 @@ function mailsystem_admin_settings() {
  * Processes mailsystem_admin_settings form.
  */
 function mailsystem_admin_settings_submit($form, &$form_state) {
+  $default_id = mailsystem_default_id();
   $mail_system = array(
-    'default-system' => (
-      empty($form_state['values']['default-system'])
-      ? 'DefaultMailSystem'
-      : $form_state['values']['default-system']
+    $default_id => (
+      empty($form_state['values'][$default_id])
+      ? mailsystem_default_value()
+      : $form_state['values'][$default_id]
     )
   );
   foreach (element_children($form_state['values']['mailsystem']) as $module) {
     $class = $form_state['values']['mailsystem'][$module];
-    if (!empty($class)) {
+    if (!empty($class) && $class != $default_id) {
       $mail_system[$module] = $class;
     }
   }
