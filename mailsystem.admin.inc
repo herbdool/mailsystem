@@ -32,11 +32,9 @@ function mailsystem_admin_settings() {
       . ' search order:'
       . '<ol><li>The mail system associated with the %module and %key, if any</li>'
       . '<li>The mail system associated with the %module, if any</li>'
-      . '<li>The mail system associated with %def_id</li></ol>',
+      . '<li>The site-wide default mail system</li></ol>',
       array(
-        '%module' => '$module', '%key' => '$key',
-        '%def_id' => mailsystem_default_id(),
-        '%def_class' => mailsystem_default_value(),
+        '%module' => 'module', '%key' => 'key',
       )
     ),
     '#collapsible' => FALSE,
@@ -88,7 +86,8 @@ function mailsystem_admin_settings() {
     . '</li><li>' . t('The mail system for that module.')
     . '</li><li>' . t('The site-wide default mail system.')
     . '</li></ol>',
-    '#collapsible' => FALSE,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
     '#tree' => TRUE,
   );
   array_unshift($descriptions, t('-- Select --'));
