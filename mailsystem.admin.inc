@@ -14,28 +14,19 @@ function mailsystem_admin_settings() {
     if ($item->status) {
       $descriptions[$item->name] = (
         empty($item->info['package'])
-        ? '' : t($item->info['package'])
-      ) . ' » ' . t($item->info['name'] . ' module');
+        ? '' : $item->info['package']
+      ) . ' » ' . t('!module module', array('!module' => $item->info['name']));
     }
   }
   asort($descriptions);
   $form['mailsystem'] = array(
     '#type' => 'fieldset',
     '#title' => t('Mail System Settings'),
-    '#description' => t(
-      'Drupal provides a default mail system called %def_class.'
-      . ' Modules may provide additional mail systems.'
-      . ' Each mail system is associated with one or more identifiers,'
-      . ' composed of a %module and an optional %key.'
-      . ' Each email being sent also has a %module and a %key.'
-      . ' To decide which mail system to use, drupal uses the following'
-      . ' search order:'
-      . '<ol><li>The mail system associated with the %module and %key, if any.</li>'
-      . '<li>The mail system associated with the %module, if any.</li>'
-      . '<li>The site-wide default mail system.</li></ol>',
+    '#description' => t('Drupal provides a default mail system called %def_class. Modules may provide additional mail systems. Each mail system is associated with one or more identifiers, composed of a %module and an optional %key. Each email being sent also has a %module and a %key. To decide which mail system to use, drupal uses the following search order: <ol><li>The mail system associated with the %module and %key, if any.</li><li>The mail system associated with the %module, if any.</li><li>The site-wide default mail system.</li></ol>',
       array(
-        '%module' => 'module', '%key' => 'key',
         '%def_class' => mailsystem_default_value(),
+        '%module' => 'module',
+        '%key' => 'key',
       )
     ),
     '#collapsible' => FALSE,
@@ -73,20 +64,13 @@ function mailsystem_admin_settings() {
   $form['identifier'] = array(
     '#type' => 'fieldset',
     '#title' => t('New Setting'),
-    '#description' => t(
-      'Any calls to <a href="!mail"><code>drupal_mail()</code></a> must '
-      . 'specify the name of the sending module and and a message key. The '
-      . '<a href="!system"><code>drupal_mail_system()</code></a> function '
-      . 'determines which mailer will send the message, by selecting the '
-      . 'first match from the following list:',
+    '#description' => t('Add a new %module and %key to the settings list.',
       array(
-        '!mail' => 'http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail/7'
-        '!system' => 'http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7',
+        '%module' => 'module',
+        '%key' => 'key',
+
       )
-    ) . '<ol><li>' . t('The mail system for that module and key.')
-    . '</li><li>' . t('The mail system for that module.')
-    . '</li><li>' . t('The site-wide default mail system.')
-    . '</li></ol>',
+    ),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
     '#tree' => TRUE,
