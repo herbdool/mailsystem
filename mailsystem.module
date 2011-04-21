@@ -272,7 +272,7 @@ function &mailsystem_get_classes() {
     }
     foreach ($all_classes as $classname => $autoload) {
       if ( ($object = new $classname)
-        && ($object instanceof MailSystemInterfacE)
+        && ($object instanceof MailSystemInterface)
       ) {
         $mailsystem_classes[$classname] = $classname;
       }
