@@ -131,9 +131,7 @@ function mailsystem_create_class($classes, $reset=FALSE) {
     return FALSE;
   }
   // Build the class filename.
-  $class_file = file_build_uri("mailsystem/$class_name.mail.inc");
-  // Convert to realpath.
-  $class_file = drupal_realpath($class_file);
+  $class_file = drupal_realpath($class_dir) . "/$class_name.mail.inc";
   // Strip DRUPAL_ROOT.
   $class_file = preg_replace('#^' . DRUPAL_ROOT . '/#', '', $class_file);
   if ($reset || !file_exists($class_file)) {
@@ -176,9 +174,9 @@ class ' . $class_name . ' implements MailSystemInterface {';
         FILE_EXISTS_REPLACE
       )
     ) {
-      drupal_static_reset('mailsystem_get_classes');
       require_once 'includes/registry.inc';
       _registry_parse_file($class_file, $class_contents, 'mailsystem');
+      drupal_static_reset('mailsystem_get_classes');
       drupal_set_message(
         t('Class <code>%class</code> written to <code>%file</code>.',
           array('%class' => $class_name, '%file' => $class_file)
@@ -249,6 +247,7 @@ function &mailsystem_get_classes() {
   if (!isset($mailsystem_classes)) {
     $mailsystem_classes = array();
     // @todo Is there a better way to find all mail-related classes?
+    $all_classes = array_fill_keys(get_declared_classes(), 0);
     $mail_classes = db_select('registry', 'registry')
       ->distinct()
       ->fields('registry', array('name', 'filename'))
@@ -267,16 +266,28 @@ function &mailsystem_get_classes() {
     foreach ($mail_classes as $classname => $classfile) {
       if ( file_exists($classfile)
         && drupal_autoload_class($classname)
-        && ($object = new $classname)
-        && ($object instanceof MailSystemInterface)
+      ) {
+        $all_classes[$classname] = 1;
+      }
+    }
+    foreach ($all_classes as $classname => $autoload) {
+      if ( ($object = new $classname)
+        && ($object instanceof MailSystemInterfacE)
       ) {
         $mailsystem_classes[$classname] = $classname;
       }
-      else {
+      elseif ($autoload) {
         // Clear classes that are no longer available.
         db_delete('registry')
           ->condition('name', $classname)
           ->execute();
+      }
+    }
+    foreach (array_unique(mailsystem_get()) as $classname) {
+      if (class_exists($classname)) {
+        $mailsystem_classes[$classname] = $classname;
+      }
+      else {
         mailsystem_clear(array(mailsystem_default_id() => $classname));
       }
     }

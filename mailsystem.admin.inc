@@ -148,7 +148,6 @@ function mailsystem_admin_settings_submit($form, &$form_state) {
     }
   }
   unset($form_state['values']['mailsystem']);
-
   if ($form_state['values']['class']['format'] === mailsystem_default_id()) {
     unset($form_state['values']['class']['format']);
   }
