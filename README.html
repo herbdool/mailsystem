@@ -1,7 +1,7 @@
 <h1><a href="http://drupal.org/project/mailsystem">Mail System</a></h1>
 <p>Provides an Administrative UI and Developers API for safely updating the <a href="http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7">mail_system</a> configuration variable.</p>
 <h2>Administrative UI</h2>
-<p>The administrative interface is at <u>admin/config/system/mailsystem</u>. A <a href="http://drupal.org/node/1089888">screenshot</a> is available.</p>
+<p>The administrative interface is at <u>admin/config/system/mailsystem</u>. A <a href="http://drupal.org/node/1134044">screenshot</a> is available.</p>
 <h2>Used by;</h2>
 <ul>
   <li><a href="http://drupal.org/project/htmlmail">HTML Mail</a></li>
@@ -71,18 +71,42 @@ function example_disable() {
 }
 </code>
 </pre>
+<h3><em>(New in 2.x branch)</em></h3>
+<p>To change the site-wide defaults to use the <code>FooMailSystem</code> for formatting messages and the <code>BarMailSystem</code> for sending them:</p>
+<pre>
+<code>mailsystem_set(
+  array(
+    mailsystem_default_id() =&gt; array(
+      'format' =&gt; 'FooMailSystem',
+      'mail' =&gt; 'BarMailSystem',
+    ),
+  )
+);
+</code>
+</pre>
+<p>To change the site-wide defaults to use the <code>FooMailSystem</code> for sending messages, while continuing to use the current system for formatting them:</p>
+<pre>
+<code>mailsystem_set(
+  array(
+    mailsystem_default_id() =&gt; array(
+      'mail' =&gt; 'FooMailsystem',
+    ),
+  )
+);
+</code>
+</pre>
 <h2>References</h2>
 <dl>
-  <dt><strong>drupal_mail_system() API documentation</strong>:</dt>
+  <dt><strong><a href="http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7">drupal_mail_system() API documentation</a></strong>:</dt>
   <dd>
-    <p>http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7</p>
+    <p><a href="http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7">api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7</a></p>
   </dd>
-  <dt><strong>MailSystemInterface API documentation</strong>:</dt>
+  <dt><strong><a href="http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7">MailSystemInterface API documentation</a></strong>:</dt>
   <dd>
-    <p>http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7</p>
+    <p><a href="http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7">api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7</a></p>
   </dd>
-  <dt><strong>Creating HTML formatted mails in Drupal 7</strong></dt>
+  <dt><strong><a href="http://drupal.org/node/900794">Creating HTML formatted mails in Drupal 7</a></strong></dt>
   <dd>
-    <p>http://drupal.org/node/900794</p>
+    <p><a href="http://drupal.org/node/900794">drupal.org/node/900794</a></p>
   </dd>
 </dl>

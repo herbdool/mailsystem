@@ -7,7 +7,7 @@ configuration variable.
 ## Administrative UI
 
 The administrative interface is at <u>admin/config/system/mailsystem</u>.
-A [screenshot](http://drupal.org/node/1089888) is available.
+A [screenshot](http://drupal.org/node/1134044) is available.
 
 ## Used by;
 
@@ -81,14 +81,38 @@ of `examail`, then the `example.install` code should look like this:
     function example_disable() {
       mailsystem_clear(array('example_examail' =\> ''));
     }
+ 
+### *(New in 2.x branch)*
+
+To change the site-wide defaults to use the `FooMailSystem` for formatting messages and the `BarMailSystem` for sending them:
+
+    mailsystem_set(
+      array(
+        mailsystem_default_id() => array(
+          'format' => 'FooMailSystem',
+          'mail' => 'BarMailSystem',
+        ),
+      )
+    );
+
+To change the site-wide defaults to use the `FooMailSystem` for sending messages, while continuing to use the current system for formatting them:
+
+    mailsystem_set(
+      array(
+        mailsystem_default_id() => array(
+          'mail' => 'FooMailsystem',
+        ),
+      )
+    );
+
 
 ## References
 
-**drupal_mail_system() API documentation**:
-:    http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7
+**[drupal_mail_system() API documentation](http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7)**:
+:    [api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7](http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7)
 
-**MailSystemInterface API documentation**:
-:    http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7
+**[MailSystemInterface API documentation](http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7)**:
+:    [api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7](http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7)
 
-**Creating HTML formatted mails in Drupal 7**
-:    http://drupal.org/node/900794
+**[Creating HTML formatted mails in Drupal 7](http://drupal.org/node/900794)**
+:    [drupal.org/node/900794](http://drupal.org/node/900794)
