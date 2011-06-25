@@ -181,6 +181,17 @@ class ' . $class_name . ' implements MailSystemInterface {';
         FILE_EXISTS_REPLACE
       )
     ) {
+      // Remove any conflicting registry entries to avoid a PDO error.
+      $class_condition = db_and()
+        ->condition('name', $class_name)
+        ->condition('type', 'class');
+      $file_condition = condition('filename', $class_file);
+      db_delete('registry_file')
+        ->condition($file_condition);
+      db_delete('registry')->condition(
+        db_or()->condition($class_condition)
+        ->condition($file_condition)
+      );
       require_once 'includes/registry.inc';
       _registry_parse_file($class_file, $class_contents, 'mailsystem');
       drupal_static_reset('mailsystem_get_classes');
