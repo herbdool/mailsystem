@@ -181,7 +181,7 @@ class ' . $class_name . ' implements MailSystemInterface {';
         FILE_EXISTS_REPLACE
       )
     ) {
-      // Remove any conflicting registry entries to avoid a PDO error.
+      // Remove any conflicting registry entries to avoid a database error.
       $class_condition = db_and()
         ->condition('name', $class_name)
         ->condition('type', 'class');
@@ -192,8 +192,11 @@ class ' . $class_name . ' implements MailSystemInterface {';
         db_or()->condition($class_condition)
         ->condition($file_condition)
       );
+      // Make sure that registry functions are available.
       require_once 'includes/registry.inc';
+      // Parse the newly-created class file and add it to the registry.
       _registry_parse_file($class_file, $class_contents, 'mailsystem');
+      // Clear the mailsystem cache so that it will pick up the new class.
       drupal_static_reset('mailsystem_get_classes');
       drupal_set_message(
         t('Class <code>%class</code> written to <code>%file</code>.',
