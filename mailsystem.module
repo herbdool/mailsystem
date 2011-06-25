@@ -137,9 +137,9 @@ function mailsystem_create_class($classes, $reset=FALSE) {
     return FALSE;
   }
   // Build the class filename.
-  $class_file = drupal_realpath($class_dir) . PATH_SEPARATOR . "$class_name.mail.inc";
+  $class_file = drupal_realpath($class_dir) . DIRECTORY_SEPARATOR . "$class_name.mail.inc";
   // Strip DRUPAL_ROOT.
-  $drupal_root = drupal_realpath(DRUPAL_ROOT) . PATH_SEPARATOR;
+  $drupal_root = drupal_realpath(DRUPAL_ROOT) . DIRECTORY_SEPARATOR;
   $class_file = preg_replace('#^' . preg_quote($drupal_root, '#') . '#', '', $class_file);
   if ($reset || !file_exists($class_file)) {
     // Build the class implementation as a string.
