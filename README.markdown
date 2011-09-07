@@ -6,10 +6,10 @@ configuration variable.
 
 ### Administrative UI
 
-The administrative interface is at [`admin/config/system/mailsystem`]().
+The administrative interface is at `admin/config/system/mailsystem`.
 A [screenshot](http://drupal.org/node/1134044) is available.
 
-### Used by;
+### Used by:
 
 * [HTML Mail](http://drupal.org/project/htmlmail)
 * [Mime Mail 7.x-1.x-dev](http://drupal.org/project/mimemail)
