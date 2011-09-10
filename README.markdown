@@ -106,7 +106,6 @@ To change the site-wide defaults to use the `FooMailSystem` for sending messages
       )
     );
 
-
 ### References
 
 **[drupal_mail_system() API documentation](http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7)**:
