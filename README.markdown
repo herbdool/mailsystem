@@ -82,7 +82,7 @@ of `examail`, then the `example.install` code should look like this:
     function example_disable() {
       mailsystem_clear(array('example_examail' =\> ''));
     }
- 
+
 #### *(New in 2.x branch)*
 
 To change the site-wide defaults to use the `FooMailSystem` for formatting messages and the `BarMailSystem` for sending them:
