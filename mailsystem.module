@@ -324,13 +324,12 @@ function mailsystem_theme_registry_alter(&$theme_registry) {
 }
 
 /**
-* Function to retrieve the key of the theme to render the emails.
+* Retrieves the key of the theme used to render the emails.
 *
 * @todo Add some kind of hook to let other modules alter this behavior.
 */
 function mailsystem_get_mail_theme() {
   global $theme_key;
-
   $theme = variable_get('mailsystem_theme', 'current');
   switch ($theme) {
     case 'default':
@@ -350,6 +349,5 @@ function mailsystem_get_mail_theme() {
       }
       break;
   }
-
   return $theme;
 }

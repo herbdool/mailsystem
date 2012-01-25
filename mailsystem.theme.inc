@@ -2,7 +2,7 @@
 
 /**
 * @file
-* The theme system, which controls the output of the messages.
+* The theme system, which controls the output of email messages.
 */
 
 /**

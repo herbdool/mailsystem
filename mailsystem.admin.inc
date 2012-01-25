@@ -159,7 +159,7 @@ function mailsystem_admin_settings() {
  */
 function mailsystem_admin_settings_submit($form, &$form_state) {
   variable_set('mailsystem_theme', $form_state['values']['mailsystem']['mailsystem_theme']);
-  // Rebuilds theme registry to make changes needed by theme rendering.
+  // Rebuild the theme registry to make changes needed by theme rendering.
   drupal_theme_rebuild();
   unset($form_state['values']['mailsystem']['mailsystem_theme']);
 
