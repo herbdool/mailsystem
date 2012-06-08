@@ -23,7 +23,7 @@ function mailsystem_admin_settings() {
     '%key' => 'key',
   );
 
-  $mail_system = mailsystem_admin_read_settings();
+  $mail_system = mailsystem_read_settings();
   $delivery_classes = mailsystem_admin_get_delivery_classes();
   $formatter_classes = mailsystem_admin_get_formatter_classes();
   $mail_modules = mailsystem_admin_get_mail_modules();
@@ -249,34 +249,6 @@ function mailsystem_admin_get_mail_modules() {
   }
 
   return $result;
-}
-
-/**
- * Returns a list of module delegations.
- *
- * @return array
- *   An associative array ($id => $value) where:
- *   - $id is the machine-readable module name optionally followed by '_'
- *     and a key.
- *   - $value is an associative array whose keys are the names of methods
- *     defined by MailSystemInterface and whose values are the names of
- *     the class to use for that method.
- */
-function mailsystem_admin_read_settings() {
-  $mail_system = mailsystem_get();
-
-  $settings = array();
-  foreach ($mail_system as $id => $class) {
-    if ($class == 'MailsystemDelegateMailSystem') {
-      $settings[$id] = variable_get('mailsystem_delegate:' . $id);
-    }
-    else {
-      $settings[$id]['mail'] = $class;
-      $settings[$id]['format'] = $class;
-    }
-  }
-
-  return $settings;
 }
 
 /**
