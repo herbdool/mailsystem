@@ -5,3 +5,4 @@ php = 5.0
 core = 7.x
 configure = admin/config/system/mailsystem
 dependencies[] = filter
+files[] = MailsystemDelegateMailSystem.inc
