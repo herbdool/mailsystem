@@ -195,9 +195,15 @@ function mailsystem_delegate_set_mailsystem_settings($id, $settings) {
 function _mailsystem_delegate_get_mailsystem($module, $key, $action) {
   $instances = &drupal_static(__FUNCTION__, array());
 
+  // Try to use custom settings defined for the message's module and key.
   $settings = variable_get('mailsystem_delegate:' . $module . '_' . $key);
   if ($settings === NULL) {
+    // Try to use custom settings defined for the message's module.
     $settings = variable_get('mailsystem_delegate:' . $module);
+  }
+  if ($settings === NULL) {
+    // Try to use the configured site-wide default mail system settings.
+    $settings = variable_get('mailsystem_delegate:' . mailsystem_default_id());
   }
 
   // Use the class configured for the given action.
