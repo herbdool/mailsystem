@@ -100,6 +100,9 @@ function mailsystem_admin_settings() {
       '#type' => 'submit',
       '#value' => t('Remove custom settings for mail-id @id', array('@id' => $id)),
       '#submit' => array('mailsystem_admin_remove_setting_submit'),
+      '#limit_validation_errors' => array(
+        array('mailsystem', $id),
+      ),
     );
   }
 
