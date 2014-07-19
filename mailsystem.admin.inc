@@ -157,6 +157,11 @@ function mailsystem_admin_settings() {
  * Add an additional custom setting for a module/key.
  */
 function mailsystem_admin_add_setting_validate($fieldset, &$form_state) {
+  // Only perform this validation if we're adding a custom setting.
+  if (!isset($form_state['submit_handlers']) || !in_array('mailsystem_admin_add_setting_submit', $form_state['submit_handlers'])) {
+    return;
+  }
+
   $module = $fieldset['module']['#value'];
   $key = $fieldset['key']['#value'];
   $id = $module;
