@@ -22,7 +22,10 @@ TESTED
 -----
 
 @todo
-This module has NOT BEEN TESTED and is being ported to Backdrop.  It may work.
+Error: 1146 Table 'backdrop.registry' doesn't exist
+
+
+This module has NOT BEEN TESTED and is being ported to Backdrop.  It doesn't work yet.
 
 KNOWN ISSUES
 ---------------------
