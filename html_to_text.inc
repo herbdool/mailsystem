@@ -32,7 +32,7 @@
  *     - " \r\n": On Windows, when $text contains at least one space.
  *     - " \n": Non-Windows, when $text contains at least one space.
  *
- * @see drupal_mail()
+ * @see backdrop_mail()
  */
 function mailsystem_wrap_mail($text, array $options = array()) {
   static $defaults;
@@ -44,7 +44,7 @@ function mailsystem_wrap_mail($text, array $options = array()) {
       'max' => 80,
       'stuff' => TRUE,
       'hard' => FALSE,
-      'eol' => variable_get('mail_line_endings', MAIL_LINE_ENDINGS),
+      'eol' => settings_get('mail_line_endings', MAIL_LINE_ENDINGS),
     );
   }
   $options += $defaults;
@@ -52,9 +52,9 @@ function mailsystem_wrap_mail($text, array $options = array()) {
     // Allow soft-wrap spaces only when $text contains at least one space.
     $options['break'] = (strpos($text, ' ') === FALSE ? '' : ' ') . $defaults['eol'];
   }
-  $options['wrap'] = $options['max'] - drupal_strlen($options['indent']);
+  $options['wrap'] = $options['max'] - backdrop_strlen($options['indent']);
   if ($options['pad']) {
-    $options['pad_repeat'] = drupal_substr($options['pad'], -1, 1);
+    $options['pad_repeat'] = backdrop_substr($options['pad'], -1, 1);
   }
   // The 'clean' indent is applied to all lines after the first one.
   $options['clean'] = _mailsystem_html_to_text_clean($options['indent']);
@@ -73,7 +73,7 @@ function mailsystem_wrap_mail($text, array $options = array()) {
  * markup. Useful for preparing the body of a node to be sent by e-mail.
  *
  * The output will be suitable for use as 'format=flowed; delsp=yes' text
- * (RFC 3676) and can be passed directly to drupal_mail() for sending.
+ * (RFC 3676) and can be passed directly to backdrop_mail() for sending.
  *
  * We deliberately use variable_get('mail_line_endings', MAIL_LINE_ENDINGS)
  * rather than "\r\n".
@@ -98,10 +98,10 @@ function mailsystem_wrap_mail($text, array $options = array()) {
  * @return
  *   The transformed string.
  *
- * @see drupal_mail()
+ * @see backdrop_mail()
  */
 function mailsystem_html_to_text($string, $allowed_tags = NULL) {
-  $eol = variable_get('mail_line_endings', MAIL_LINE_ENDINGS);
+  $eol = settings_get('mail_line_endings', MAIL_LINE_ENDINGS);
   // Cache list of supported tags.
   static $supported_tags;
   if (!isset($supported_tags)) {
@@ -138,7 +138,7 @@ function mailsystem_html_to_text($string, $allowed_tags = NULL) {
 }
 
 /**
- * Helper function for drupal_html_to_text().
+ * Helper function for backdrop_html_to_text().
  *
  * Recursively converts $node to text, wrapping and indenting as necessary.
  *
@@ -162,7 +162,7 @@ function _mailsystem_html_to_text(DOMNode $node, array $allowed_tags, array &$no
   if (!isset($count)) {
     $count = 1;
   }
-  $eol = variable_get('mail_line_endings', MAIL_LINE_ENDINGS);
+  $eol = settings_get('mail_line_endings', MAIL_LINE_ENDINGS);
   if ($node->nodeType === XML_TEXT_NODE) {
     // For text nodes, we just copy the text content.
     $text = $node->textContent;
@@ -407,16 +407,16 @@ function _mailsystem_html_to_text(DOMNode $node, array $allowed_tags, array &$no
   // Copy each child node to output.
   if ($node->hasChildNodes()) {
     foreach ($node->childNodes as $child) {
-      $child_text .= _mailsystem_html_to_text($child, $allowed_tags, $notes, $line_length - drupal_strlen($indent), $parents, $child_count);    }
+      $child_text .= _mailsystem_html_to_text($child, $allowed_tags, $notes, $line_length - backdrop_strlen($indent), $parents, $child_count);    }
   }
   // We only add prefix and suffix if the child nodes were non-empty.
   if ($child_text > '') {
     // We capitalize the contents of h1 and h2 tags.
     if ($tag === 'h1' || $tag === 'h2') {
-      $child_text = drupal_strtoupper($child_text);
+      $child_text = backdrop_strtoupper($child_text);
     }
     // Don't add a newline to an existing newline.
-    if ($suffix === $eol && drupal_substr($child_text, - drupal_strlen($eol)) === $eol) {
+    if ($suffix === $eol && backdrop_substr($child_text, - backdrop_strlen($eol)) === $eol) {
       $suffix = '';
     }
     // Trim spaces around newlines except with <pre> or inline tags.
@@ -473,7 +473,7 @@ function _mailsystem_html_to_text(DOMNode $node, array $allowed_tags, array &$no
  * @see _mailsystem_html_to_text()
  */
 function _mailsystem_html_to_text_table(DOMNode $node, $allowed_tags = NULL, array &$notes = array(), $table_width = 80) {
-  $eol = variable_get('mail_line_endings', MAIL_LINE_ENDINGS);
+  $eol = settings_get('mail_line_endings', MAIL_LINE_ENDINGS);
   $header = array();
   $footer = array();
   $body = array();
@@ -568,7 +568,7 @@ function _mailsystem_html_to_text_table(DOMNode $node, $allowed_tags = NULL, arr
               // cells in that row.
               $heights[$i] = max($heights[$i], count($lines));
               foreach ($lines as $line) {
-                $this_width = drupal_strlen($line);
+                $this_width = backdrop_strlen($line);
                 // The column width is the maximum line width among all the
                 // lines in that column.
                 if ($this_width > $widths[$j]) {
@@ -635,7 +635,7 @@ function _mailsystem_html_to_text_table(DOMNode $node, $allowed_tags = NULL, arr
             $lines = array_pad(explode($eol, $cell), $heights[$i], '');
             foreach ($lines as $k => $line) {
               // Pad each line to the maximum width in that column.
-              $repeat = $widths[$j] - drupal_strlen($line);
+              $repeat = $widths[$j] - backdrop_strlen($line);
               if ($repeat > 0) {
                 // chr(160) is the non-breaking space character.
                 $lines[$k] .= str_repeat(chr(160), $repeat);
@@ -685,7 +685,7 @@ function _mailsystem_html_to_text_table(DOMNode $node, $allowed_tags = NULL, arr
 }
 
 /**
- * Helper function for array_walk in drupal_wrap_mail().
+ * Helper function for array_walk in backdrop_wrap_mail().
  *
  * Inserts $values['break'] sequences to break up $line into parts of no more
  * than $values['wrap'] characters. Only breaks at space characters, unless
@@ -696,7 +696,7 @@ function _mailsystem_wrap_mail_line(&$line, $key, $values) {
 }
 
 /**
- * Helper function for array_walk in drupal_wrap_mail().
+ * Helper function for array_walk in backdrop_wrap_mail().
  *
  * If $values['pad'] is non-empty, $values['indent'] will be added at the start
  * of each line, and $values['pad'] at the end, repeating the last character of
@@ -716,7 +716,7 @@ function _mailsystem_indent_mail_line(&$line, $key, $values) {
   }
   if ($values['pad']) {
     $line = $values['indent'] . $line;
-    $count = $values['max'] - drupal_strlen($line) - drupal_strlen($values['pad']);
+    $count = $values['max'] - backdrop_strlen($line) - backdrop_strlen($values['pad']);
     if ($count >= 0) {
       $line .= $values['pad'] . str_repeat($values['pad_repeat'], $count);
     }
@@ -731,7 +731,7 @@ function _mailsystem_indent_mail_line(&$line, $key, $values) {
 }
 
 /**
- * Helper function for drupal_wrap_mail() and drupal_html_to_text().
+ * Helper function for backdrop_wrap_mail() and backdrop_html_to_text().
  *
  * Replace all non-quotation markers from a given piece of indentation with
  * non-breaking space characters.

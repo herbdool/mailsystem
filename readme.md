@@ -1,4 +1,55 @@
-## [Mail System](http://drupal.org/project/mailsystem)
+MAILSYSTEM
+===========
+
+CONTENTS OF THIS FILE
+---------------------
+
+ - Introduction
+ - Requirements
+ - Installation
+ - Permissions
+ - Usage
+ - Sponsors
+
+INTRODUCTION
+------------
+
+by https://www.drupal.org/u/pillarsdotnet
+
+Provides an Administrative UI and Developers API for safely updating the mail_system configuration variable.
+
+TESTED
+-----
+
+@todo
+This module has NOT BEEN TESTED and is being ported to Backdrop.  It may work.
+
+KNOWN ISSUES
+---------------------
+@todo
+
+
+REQUIREMENTS
+------------
+
+none
+
+INSTALLATION
+------------
+
+Mailsystem can be installed via the standard Backdrop installation process
+(http://drupal.org/documentation/install/modules-themes/modules-7).
+
+PERMISSIONS
+------------
+
+@todo
+
+
+USAGE
+-----
+
+@todo
 
 Provides an Administrative UI and Developers API for safely updating the
 [mail_system](http://api.drupal.org/api/drupal/includes--mail.inc/function/drupal_mail_system/7)
@@ -116,3 +167,27 @@ To change the site-wide defaults to use the `FooMailSystem` for sending messages
 
 **[Creating HTML formatted mails in Drupal 7](http://drupal.org/node/900794)**:
 :    [drupal.org/node/900794](http://drupal.org/node/900794)
+
+
+
+
+
+License
+-------
+
+This project is GPL v2 software. See the LICENSE.txt file in this directory for
+complete text.
+
+Maintainers
+-----------
+
+- seeking
+
+Current Maintainers on Drupal:
+
+ - pillarsdotnet <https://www.drupal.org/u/pillarsdotnet>
+ - Les Lim <https://www.drupal.org/u/les-lim>
+
+Ported to Backdrop by:
+
+ - biolithic <https://github.com/biolithic>
