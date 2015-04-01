@@ -1,7 +1,6 @@
 package = Mail
 name = Mail System
 description = Provides a user interface for per-module and site-wide mail_system selection.
-php = 5.0
 version = BACKDROP_VERSION
 backdrop = 1.x
 configure = admin/config/system/mailsystem

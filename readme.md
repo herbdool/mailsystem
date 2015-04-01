@@ -24,10 +24,15 @@ TESTED
 @todo
 This module has NOT BEEN TESTED and is being ported to Backdrop.  It may work.
 
+This is a base module that just provides functionality for other modules to use.
+
 KNOWN ISSUES
 ---------------------
 @todo
 
+The Drupal version of this module used the registry database table extensively.  Backdrop CMS removed this table and we are re-engineering the module to work within the Backdrop way.
+
+<https://github.com/backdrop-contrib/mailsystem/issues/1>
 
 REQUIREMENTS
 ------------

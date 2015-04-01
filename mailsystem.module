@@ -6,6 +6,17 @@
  */
 
 /**
+ * Implements hook_config_info().
+ */
+function mailsystem_config_info() {
+  $prefixes['mailsystem.settings'] = array(
+    'label' => t('mailsystem settings'),
+    'group' => t('mailsystem'),
+  );
+  return $prefixes;
+}  
+ 
+/**
  * Implements hook_init().
  *
  * Caches the list of MailSystemInterface classes, and removes classes
@@ -81,13 +92,15 @@ function mailsystem_defaults() {
 
 /**
  * Returns the current mail_system settings.
- *
+ * 
  * @return The contents of the mail_system variable merged with its defaults.
  */
 function mailsystem_get() {
+  
+  $mail_settings = config_get('mailsystem.settings', 'mail_system') ?: array();
   return array_merge(
     mailsystem_defaults(),
-    config_get('mailsystem.settings', 'mail_system')
+  $mail_settings  
   );
 }
 
@@ -266,21 +279,19 @@ function &mailsystem_get_classes() {
       $declared_classes,
       array_fill(0, count($declared_classes), 0)
     );
-    $mail_classes = db_select('registry', 'registry')
-      ->distinct()
-      ->fields('registry', array('name', 'filename'))
-      ->where("type=:type AND ( filename like :filename OR name like :name )",
-        // Making the HUGE assumption that all classes which implement
-        // MailSystemInterface have filenames containing '.mail.' or
-        // classnames ending in 'MailSystem'.
-        array(
-          ':type' => 'class',
-          ':name' => '%MailSystem',
-          ':filename' => '%.mail.%',
-        )
-      )
-      ->execute()
-      ->fetchAllKeyed();
+    $mail_classes = array();
+    
+    // Backdrop solution from https://github.com/backdrop-contrib/mailsystem/issues/1
+    foreach (module_implements('autoload_info') as $module) {
+    $function = $module . '_autoload_info';
+    $implements = $function();
+    foreach($implements as $classname => $path) {
+      if(strpos($classname, 'MailSystem') || strrpos($path, 'mail.inc')) {
+        $mail_classes[$classname] = $path;
+      }
+    }
+  }
+  
     foreach ($mail_classes as $classname => $classfile) {
       if ( file_exists($classfile)
         && backdrop_autoload_class($classname)
