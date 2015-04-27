@@ -1,41 +1,61 @@
 MAILSYSTEM
-===========
+===================
 
 CONTENTS OF THIS FILE
 ---------------------
 
  - Introduction
+ - Tested
+ - Known Issues
+ - Special Thanks
  - Requirements
  - Installation
- - Permissions
+ - Coming From Drupal?
  - Usage
- - Sponsors
+ - License
+ - Credits
+ - Maintainers
 
 INTRODUCTION
 ------------
-
-by https://www.drupal.org/u/pillarsdotnet
 
 Provides an Administrative UI and Developers API for safely updating the mail_system configuration variable.
 
 TESTED
 -----
 
-@todo
-Error: 1146 Table 'backdrop.registry' doesn't exist
+Email Modules
+The following modules ported to Backdrop are inter-related to the mailing system:
 
+simplenews
 
-This module has NOT BEEN TESTED and is being ported to Backdrop.  It doesn't work yet.
+simplenews_scheduler
 
-This is a base module that just provides functionality for other modules to use.
+mimemail
+
+mandrill
+
+mailsystem
+
+smtp
+
+They have been converted from Drupal to Backdrop but are still not working.  They need debugging into what was changed between the systems and how to fix it. I, biolithic the one who did the intial conversion, lack the heart or time in the spring of 2015 to debug them currently.
+
+Do you have a need or desire for email newsletters?  You are welcome to submit pull requests to finish these modules.  It may not be a lot of work.  Thanks!
 
 KNOWN ISSUES
 ---------------------
+
 @todo
 
 The Drupal version of this module used the registry database table extensively.  Backdrop CMS removed this table and we are re-engineering the module to work within the Backdrop way.
 
 <https://github.com/backdrop-contrib/mailsystem/issues/1>
+
+SPECIAL THANKS
+--------------
+
+https://www.drupal.org/u/pillarsdotnet
 
 REQUIREMENTS
 ------------
@@ -45,8 +65,15 @@ none
 INSTALLATION
 ------------
 
-Mailsystem can be installed via the standard Backdrop installation process
-(http://drupal.org/documentation/install/modules-themes/modules-7).
+Install this module using the official Backdrop CMS instructions at https://backdropcms.org/guide/modules
+
+
+COMING FROM DRUPAL?
+-------------------
+
+The Drupal version of this module used the registry database table extensively.  Backdrop CMS removed this table.
+
+<https://github.com/backdrop-contrib/mailsystem/issues/1>
 
 PERMISSIONS
 ------------
@@ -176,25 +203,23 @@ To change the site-wide defaults to use the `FooMailSystem` for sending messages
 **[Creating HTML formatted mails in Drupal 7](http://drupal.org/node/900794)**:
 :    [drupal.org/node/900794](http://drupal.org/node/900794)
 
-
-
-
-
-License
+LICENSE
 -------
 
-This project is GPL v2 software. See the LICENSE.txt file in this directory for
-complete text.
+This project is GPL v2 software. See the LICENSE.txt file in this directory for complete text.
 
-Maintainers
+CREDITS
+-----------
+
+This module is based on the Mailsystem module for Drupal, originally written and maintained by a large number of contributors, including:
+
+- pillarsdotnet <https://www.drupal.org/u/pillarsdotnet>
+ - Les Lim <https://www.drupal.org/u/les-lim>
+
+MAINTAINERS
 -----------
 
 - seeking
-
-Current Maintainers on Drupal:
-
- - pillarsdotnet <https://www.drupal.org/u/pillarsdotnet>
- - Les Lim <https://www.drupal.org/u/les-lim>
 
 Ported to Backdrop by:
 
