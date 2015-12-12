@@ -293,7 +293,6 @@ function &mailsystem_get_classes() {
       }
     }
     foreach ($mail_classes as $classname => $classfile) {
-		  if (file_exists($classfile)){print('File check ');}
       if ( file_exists($classfile)) {
         $all_classes[$classname] = 1;
       }
