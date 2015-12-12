@@ -283,19 +283,18 @@ function &mailsystem_get_classes() {
     
     // Backdrop solution from https://github.com/backdrop-contrib/mailsystem/issues/1
     foreach (module_implements('autoload_info') as $module) {
-    $function = $module . '_autoload_info';
-    $implements = $function();
-    foreach($implements as $classname => $path) {
-      if(strpos($classname, 'MailSystem') || strrpos($path, 'mail.inc')) {
-        $mail_classes[$classname] = $path;
+		  $function = $module . '_autoload_info';
+			if($module){$modulepath = BACKDROP_ROOT.'/'.backdrop_get_path('module',$module);}
+      $implements = $function();
+      foreach($implements as $classname => $path) {
+        if(strpos($classname, 'MailSystem') || strrpos($path, 'mail.inc')) {
+          $mail_classes[$classname] = $modulepath.'/'.$path;
+        }
       }
     }
-  }
-  
     foreach ($mail_classes as $classname => $classfile) {
-      if ( file_exists($classfile)
-        && backdrop_autoload_class($classname)
-      ) {
+		  if (file_exists($classfile)){print('File check ');}
+      if ( file_exists($classfile)) {
         $all_classes[$classname] = 1;
       }
     }
@@ -305,12 +304,6 @@ function &mailsystem_get_classes() {
         && ($object instanceof MailSystemInterface)
       ) {
         $mailsystem_classes[$classname] = $classname;
-      }
-      elseif ($autoload) {
-        // Clear classes that are no longer available.
-        db_delete('registry')
-          ->condition('name', $classname)
-          ->execute();
       }
     }
     foreach (array_unique(mailsystem_get()) as $classname) {
@@ -325,6 +318,7 @@ function &mailsystem_get_classes() {
   }
   return $mailsystem_classes;
 }
+
 
 /**
 * Implements hook_theme_registry_alter().
