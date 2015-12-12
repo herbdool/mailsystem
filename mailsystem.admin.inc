@@ -6,13 +6,13 @@
  */
 function mailsystem_admin_settings() {
   $args = array(
-    '!interface' => url('http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7'),
+    '!interface' => url('https://api.backdropcms.org/api/backdrop/core%21includes%21mail.inc/interface/MailSystemInterface/1'),
     '@interface' => 'MailSystemInterface',
-    '!format' => url('http://api.drupal.org/api/drupal/includes--mail.inc/function/MailSystemInterface%3A%3Aformat/7'),
+    '!format' => url('https://api.backdropcms.org/api/backdrop/core%21includes%21mail.inc/function/MailSystemInterface%3A%3Aformat/1'),
     '@format' => 'format()',
-    '!mail' => url('http://api.drupal.org/api/drupal/includes--mail.inc/function/MailSystemInterface%3A%3Amail/7'),
+    '!mail' => url('https://api.backdropcms.org/api/backdrop/core%21includes%21mail.inc/function/MailSystemInterface%3A%3Amail/1'),
     '@mail' => 'mail()',
-    '!default_class' => url('http://api.drupal.org/api/drupal/modules--system--system.mail.inc/class/DefaultMailSystem/7'),
+    '!default_class' => url('https://api.backdropcms.org/api/backdrop/core%21modules%21system%21system.mail.inc/class/DefaultMailSystem/1'),
     '@default_class' => mailsystem_default_value(),
     '%module' => 'module',
     '%key' => 'key',
@@ -35,7 +35,7 @@ function mailsystem_admin_settings() {
     '#type' => 'fieldset',
     '#title' => t('Mail System Settings'),
     '#description' => t(
-      'Drupal provides a default <a href="!interface"><code>@interface</code></a> class called <a href="!default_class"><code>@default_class</code></a>. Modules may provide additional classes. Each <a href="!interface"><code>@interface</code></a> class may be associated with one or more identifiers, composed of a %module and an optional %key. Each email being sent also has a %module and a %key. To decide which class to use, Drupal uses the following search order: <ol><li>The class associated with the %module and %key, if any.</li><li>The class associated with the %module, if any.</li><li>The site-wide default <a href="!interface"><code>@interface</code></a> class.</li></ol>', $args
+      'Backdrop provides a default <a href="!interface"><code>@interface</code></a> class called <a href="!default_class"><code>@default_class</code></a>. Modules may provide additional classes. Each <a href="!interface"><code>@interface</code></a> class may be associated with one or more identifiers, composed of a %module and an optional %key. Each email being sent also has a %module and a %key. To decide which class to use, Backdrop uses the following search order: <ol><li>The class associated with the %module and %key, if any.</li><li>The class associated with the %module, if any.</li><li>The site-wide default <a href="!interface"><code>@interface</code></a> class.</li></ol>', $args
     ),
     '#collapsible' => FALSE,
     '#tree' => TRUE,
