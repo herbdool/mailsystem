@@ -267,64 +267,65 @@ function mailsystem_clear(array $setting) {
 }
 
 /**
- * Returns a list of classes which implement MailSystemInterface.
- */
+* Returns a list of classes which implement MailSystemInterface.
+*/
 function &mailsystem_get_classes() {
-  $mailsystem_classes = &backdrop_static(__FUNCTION__);
-  if (!isset($mailsystem_classes)) {
-    $mailsystem_classes = array();
-    // @todo Is there a better way to find all mail-related classes?
-    $declared_classes = get_declared_classes();
-    $all_classes = array_combine(
-      $declared_classes,
-      array_fill(0, count($declared_classes), 0)
-    );
-    $mail_classes = array();
+  $mailsystem_classes = array();
+  $mail_classes = array();
     
-    // Backdrop solution from https://github.com/backdrop-contrib/mailsystem/issues/1
-    foreach (module_implements('autoload_info') as $module) {
+  // Backdrop solution from https://github.com/backdrop-contrib/mailsystem/issues/1
+  foreach (module_implements('autoload_info') as $module) {
     $function = $module . '_autoload_info';
+    if($module){$modulepath = BACKDROP_ROOT.'/'.backdrop_get_path('module',$module);}
     $implements = $function();
     foreach($implements as $classname => $path) {
-      if(strpos($classname, 'MailSystem') || strrpos($path, 'mail.inc')) {
-        $mail_classes[$classname] = $path;
+      if(strpos($classname, 'MailSystem') and !strpos($classname, 'Delegate')) {
+        $mail_classes[$classname] = $modulepath.'/'.$path;
       }
     }
   }
-  
-    foreach ($mail_classes as $classname => $classfile) {
-      if ( file_exists($classfile)
-        && backdrop_autoload_class($classname)
-      ) {
+  // use a config setting for current mail options
+	$mail_system_options = array();
+	foreach($mail_classes as $class=>$path){
+		$mail_system_options[$class] = $class;
+	}
+	config_set('mailsystem.settings','mail_system_options',$mail_system_options);
+  // now check whether we already have each class listed in config
+  // if not, add it as a default and load it
+  // also, check that those listed in config do still exist
+  $config_classes = config_get('mailsystem.settings','mail_system');
+  $all_classes = array();
+  foreach ($mail_classes as $classname => $classfile) {
+    if(empty($config_classes[$classname])){
+      // needs to be added to config
+      // add to array $all_classes
+      if ( file_exists($classfile)) {
         $all_classes[$classname] = 1;
       }
+    }else{
+      // add existing class to $mailsystem_classes
+      $mailsystem_classes[$classname] = $classname;
     }
-    foreach ($all_classes as $classname => $autoload) {
-      if ( ($autoload || preg_match('/MailSystem/', $classname))
-        && ($object = new $classname)
-        && ($object instanceof MailSystemInterface)
-      ) {
-        $mailsystem_classes[$classname] = $classname;
-      }
-      elseif ($autoload) {
-        // Clear classes that are no longer available.
-        db_delete('registry')
-          ->condition('name', $classname)
-          ->execute();
-      }
-    }
-    foreach (array_unique(mailsystem_get()) as $classname) {
-      if (class_exists($classname)) {
-        $mailsystem_classes[$classname] = $classname;
-      }
-      else {
-        mailsystem_clear(array(mailsystem_default_id() => $classname));
-      }
-    }
-    ksort($mailsystem_classes);
   }
+  // now process those to be added
+  foreach ($all_classes as $classname => $autoload) {
+    if ($autoload == 1) {
+      $mailsystem_classes[$classname] = 'DefaultMailSystem';
+    }
+  }
+  // now check for missing classes
+  if(is_array($config_classes)){
+    foreach ($config_classes as $classname) {
+      if (!class_exists($classname)) {
+        $mailsystem_classes[$classname] = "";
+      }
+    }
+  }
+  ksort($mailsystem_classes);
+  config_set('mailsystem.settings','mail_system',$mailsystem_classes);
   return $mailsystem_classes;
 }
+
 
 /**
 * Implements hook_theme_registry_alter().
