@@ -71,37 +71,28 @@ function mailsystem_menu() {
  * Returns the id for the default mail_system setting.
  */
 function mailsystem_default_id() {
-  // @todo: Is there a way to get this from core?
-  return 'default-system';
+  return config_get('system.mail', 'default-system');
 }
 
 /**
  * Returns the value for the default mail_system setting.
  */
 function mailsystem_default_value() {
-  // @todo: Is there a way to get this from core?
-  return 'DefaultMailSystem';
+  return config_get('system.mail', mailsystem_default_id());
 }
 
 /**
  * Returns the default settings for the mail_system variable.
  */
 function mailsystem_defaults() {
-  return array(mailsystem_default_id() => mailsystem_default_value());
+  return config_get('system.mail');
 }
 
 /**
  * Returns the current mail_system settings.
- * 
- * @return The contents of the mail_system variable merged with its defaults.
  */
 function mailsystem_get() {
-  
-  $mail_settings = config_get('mailsystem.settings', 'mail_system') ?: array();
-  return array_merge(
-    mailsystem_defaults(),
-  $mail_settings  
-  );
+  return config_get('mailsystem.settings', 'mail_system');
 }
 
 /**

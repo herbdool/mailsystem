@@ -1,5 +1,12 @@
 {
-    "_config_name": "mailsystem.settings",
-    "mail_system": "",
-    "mailsystem_theme": ""
+  "_config_name": "mailsystem.settings",
+  "mailsystem_theme": "default",
+  "mail_system": {
+    "DefaultMailSystem": "DefaultMailSystem"
+  },
+  "mail_system_options": {
+    "DefaultMailSystem": "DefaultMailSystem"
+  }
 }
+
+

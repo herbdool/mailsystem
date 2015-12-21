@@ -1,6 +1,5 @@
 name = Mail System
 description = Provides a user interface for per-module and site-wide mail_system selection.
-version = BACKDROP_VERSION
 backdrop = 1.x
 type = module
 package = Mail
