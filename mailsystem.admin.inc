@@ -112,6 +112,8 @@ function mailsystem_admin_settings_submit($form, &$form_state)
   $default_id = mailsystem_default_id();
   $mail_system = $form_state['values']['mailsystem'][$default_id];
   $update_mail_system[$default_id] = $mail_system;
+  // set site-wide default mail system
+	config_set('system.mail','default-system', $mail_system);
 
   foreach ($form_state['values']['mailsystem'] as $module => $class) {
     if (!empty($class) && $class != $default_id) {
