@@ -35,15 +35,15 @@ Graham Oliver (github.com/Graham-72/)
 
 ### Port to Backdrop
 
-Graham Oliver (github.com/Graham-72)
-Andy Martha (github.com/biolithic)
++ Graham Oliver (github.com/Graham-72)
++ Andy Martha (github.com/biolithic)
 
 ### Maintainers for Drupal:
 
-Sascha Grossenbacher (Berdir)
-Nik Alexandrov (Nafes)
-Les Lim (Les_Lim)
-Robert Vincent (pillarsdotnet)
++ Sascha Grossenbacher (Berdir)
++ Nik Alexandrov (Nafes)
++ Les Lim (Les_Lim)
++ Robert Vincent (pillarsdotnet)
 
 ### Acknowledgement
 
