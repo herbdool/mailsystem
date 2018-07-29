@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Copy of drupal_html_to_text improvements from issue #299138.
+ * Copy of backdrop_html_to_text improvements from issue #299138.
  */
 
 /**
@@ -10,7 +10,7 @@
  * We use delsp=yes wrapping, but only break non-spaced languages when
  * absolutely necessary to avoid compatibility issues.
  *
- * We deliberately use variable_get('mail_line_endings', MAIL_LINE_ENDINGS)
+ * We deliberately use settings_get('mail_line_endings', MAIL_LINE_ENDINGS)
  * rather than "\r\n".
  *
  * @param $text
@@ -75,7 +75,7 @@ function mailsystem_wrap_mail($text, array $options = array()) {
  * The output will be suitable for use as 'format=flowed; delsp=yes' text
  * (RFC 3676) and can be passed directly to backdrop_mail() for sending.
  *
- * We deliberately use variable_get('mail_line_endings', MAIL_LINE_ENDINGS)
+ * We deliberately use settings_get('mail_line_endings', MAIL_LINE_ENDINGS)
  * rather than "\r\n".
  *
  * This function provides suitable alternatives for the following tags:

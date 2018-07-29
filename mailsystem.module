@@ -8,8 +8,7 @@
 /**
  * Implements hook_config_info().
  */
-function mailsystem_config_info()
-{
+function mailsystem_config_info() {
   $prefixes['mailsystem.settings'] = array(
     'label' => t('mailsystem settings'),
     'group' => t('mailsystem'),
@@ -18,20 +17,12 @@ function mailsystem_config_info()
 }
 
 /**
- * Implements hook_init().
- *
- * Caches the list of MailSystemInterface classes, and removes classes
- * from the mail_system variable which are no longer available.
- *
- * @see mailsystem_get_classes()
+ * Implements hook_autoload_info().
  */
-function mailsystem_init()
-{
-  mailsystem_get_classes();
-  // @todo Remove this when issue #299138 gets resolved.
-  if (!function_exists('mailsystem_html_to_text')) {
-    module_load_include('inc', 'mailsystem', 'html_to_text');
-  }
+function mailsystem_autoload_info() {
+  return array(
+    'MailsystemDelegateMailSystem' => 'MailsystemDelegateMailSystem.inc',
+  );
 }
 
 /**
@@ -39,15 +30,14 @@ function mailsystem_init()
  *
  * Defines a permission for managing the mail_system variable.
  */
-function mailsystem_permission()
-{
+function mailsystem_permission() {
   return array(
     'administer mailsystem' => array(
       'title' => t('Administer Mail System'),
       'description' => t(
         'Select the default, per-module, and per-mailing <a href="!interface"><code>@interface</code></a> to use for formatting and sending email messages.',
         array(
-          '!interface' => url('http://api.drupal.org/api/drupal/includes--mail.inc/interface/MailSystemInterface/7'),
+          '!interface' => url('https://api.backdropcms.org/api/backdrop/core%21includes%21mail.inc/interface/MailSystemInterface/1'),
           '@interface' => 'MailSystemInterface',
         )
       ),
@@ -58,8 +48,7 @@ function mailsystem_permission()
 /**
  * Implements hook_menu().
  */
-function mailsystem_menu()
-{
+function mailsystem_menu() {
   $items['admin/config/system/mailsystem'] = array(
     'title' => 'Mail System',
     'description' => 'Configure per-module Mail System settings.',
@@ -74,145 +63,64 @@ function mailsystem_menu()
 /**
  * Returns the id for the default mail_system setting.
  */
-function mailsystem_default_id()
-{
-  return config_get('system.mail', 'default-system');
+function mailsystem_default_id() {
+  // @todo: Is there a way to get this from core?
+  return 'default-system';
 }
 
 /**
  * Returns the value for the default mail_system setting.
  */
-function mailsystem_default_value()
-{
-  return config_get('system.mail', mailsystem_default_id());
+function mailsystem_default_value() {
+  // @todo: Is there a way to get this from core?
+  return 'DefaultMailSystem';
 }
 
 /**
  * Returns the default settings for the mail_system variable.
  */
-function mailsystem_defaults()
-{
-  return config_get('system.mail');
+function mailsystem_defaults() {
+  return array(mailsystem_default_id() => mailsystem_default_value());
 }
 
 /**
  * Returns the current mail_system settings.
- */
-function mailsystem_get()
-{
-  return config_get('mailsystem.settings', 'mail_system');
-}
-
-/**
- * Returns the default list of MailSystemInterface methods.
  *
- * @return
- *   An array whose keys are the names of the methods defined by
- *   MailSystemInterface and whose values are the default class used to
- *   provide that method.
+ * @return The contents of the mail_system variable merged with its defaults.
  */
-function mailsystem_default_methods()
-{
-  $mail_system = mailsystem_get();
-  $default_class = $mail_system[mailsystem_default_id()];
-  $methods = get_class_methods('MailSystemInterface');
-  return array_combine(
-    $methods,
-    array_fill(0, count($methods), $default_class)
+function mailsystem_get() {
+  return array_merge(
+    mailsystem_defaults(),
+    config_get('system.mail')
   );
 }
 
 /**
- * Creates and registers a new MailSystemInterface class.
+ * Returns a list of module delegations.
  *
- * The newly-created class gets its name and each of its class methods from the
- * other classes specified by the $class parameter.
- *
- * @param $class An associative array of ($method_name => $class_name) tuples,
- * where each $method_name is the name of a class method to be created, and
- * each $class_name is the name of a class to use for that method.
- *
- * @return
- *   The name of the newly-created class if successful; otherwise FALSE.
+ * @return array
+ *   An associative array ($id => $value) where:
+ *   - $id is the machine-readable module name optionally followed by '_'
+ *     and a key.
+ *   - $value is an associative array whose keys are the names of methods
+ *     defined by MailSystemInterface and whose values are the names of
+ *     the class to use for that method.
  */
-function mailsystem_create_class($classes)
-{
-  // Merge in defaults.
-  $classes += mailsystem_default_methods();
-  ksort($classes);
-  // Do not create a new class whose methods all derive from the same class.
-  if (count(array_unique($classes)) === 1) {
-    return FALSE;
-  }
-  $class_name = implode('__', $classes);
-  // Ensure that the mailsystem directory exists.
-  $class_dir = file_build_uri('mailsystem');
-  if (!file_prepare_directory($class_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    return FALSE;
-  }
-  // Build the class filename.
-  $class_file = backdrop_realpath($class_dir) . DIRECTORY_SEPARATOR . "$class_name.mail.inc";
-  // Strip DRUPAL_ROOT.
-  $backdrop_root = backdrop_realpath(BACKDROP_ROOT) . DIRECTORY_SEPARATOR;
-  $class_file = preg_replace('#^' . preg_quote($backdrop_root, '#') . '#', '', $class_file);
-  // Build the class implementation as a string.
-  $class_contents = '<?php
-class ' . $class_name . ' implements MailSystemInterface {';
-  // Create a protected variable to hold each method class.
-  foreach (array_keys($classes) as $method) {
-    $class_contents .= '
-  protected $' . $method . 'Class;';
-  }
-  // Create a class construction function to populate the variables.
-  $class_contents .= '
-  public function __construct() {';
-  foreach ($classes as $method => $class) {
-    $class_contents .= '
-    if (backdrop_autoload_class(\'' . $class . '\')) {
-      $this->' . $method . 'Class = new ' . $class . ';
+function mailsystem_read_settings() {
+  $mail_system = mailsystem_get();
+
+  $settings = array();
+  foreach ($mail_system as $id => $class) {
+    if ($class == 'MailsystemDelegateMailSystem') {
+      $settings[$id] = config_get('mailsystem.settings', 'mailsystem_delegate.' . $id);
     }
     else {
-      $this->' . $method . 'Class = new ' . mailsystem_default_value() . ';
-    }';
+      $settings[$id]['mail'] = $class;
+      $settings[$id]['format'] = $class;
+    }
   }
-  $class_contents .= '
-  }';
-  // Create each class method.
-  foreach (array_keys($classes) as $method) {
-    $class_contents .= '
-  public function ' . $method . '(array $message) {
-    return $this->' . $method . 'Class->' . $method . '($message);
-  }';
-  }
-  $class_contents .= '
-}
-';
-  if (file_unmanaged_save_data($class_contents, $class_file, FILE_EXISTS_REPLACE)) {
-    // Remove any conflicting registry entries to avoid a database error.
-    $class_condition = db_and()
-      ->condition('name', $class_name)
-      ->condition('type', 'class');
-    $file_condition = db_and()
-      ->condition('filename', $class_file);
-    db_delete('registry_file')
-      ->condition($file_condition);
-    db_delete('registry')->condition(
-      db_or()->condition($class_condition)
-        ->condition($file_condition)
-    );
-    // Make sure that registry functions are available.
-    require_once 'includes/registry.inc';
-    // Parse the newly-created class file and add it to the registry.
-    _registry_parse_file($class_file, $class_contents, 'mailsystem');
-    // Clear the mailsystem cache so that it will pick up the new class.
-    backdrop_static_reset('mailsystem_get_classes');
-    backdrop_set_message(
-      t('Class <code>%class</code> written to <code>%file</code>.',
-        array('%class' => $class_name, '%file' => $class_file)
-      )
-    );
-  }
-  return $class_name;
+
+  return $settings;
 }
 
 /**
@@ -228,20 +136,20 @@ class ' . $class_name . ' implements MailSystemInterface {';
  *       defined by MailSystemInterface and whose values are the names of
  *       the class to use for that method.
  *
- * @see backdrop_mail(), mailsystem_default_methods()
+ * @see backdrop_mail()
  */
-function mailsystem_set(array $setting)
-{
+function mailsystem_set(array $setting) {
   $mail_system = mailsystem_get();
   foreach ($setting as $key => $class) {
+    config_clear('mailsystem.settings', 'mailsystem_delegate.' . $key);
     if (is_array($class)) {
-      unset($setting[$key]);
-      if ($new_class = mailsystem_create_class($class)) {
-        $setting[$key] = $new_class;
-      }
+      // Save the settings for our delegateer-class into a variable
+      $setting[$key] = mailsystem_delegate_set_mailsystem_settings($key, $class);
     }
   }
-  config_set('mailsystem.settings', 'mail_system', array_merge(mailsystem_get(), $setting));
+  $config_mail = config('system.mail');
+  $config_mail->setData(array_merge(mailsystem_get(), $setting));
+  $config_mail->save();
 }
 
 /**
@@ -258,98 +166,148 @@ function mailsystem_set(array $setting)
  * @param $class
  *   The name of the class to be removed, if any.
  */
-function mailsystem_clear(array $setting)
-{
-  config_set('mailsystem.settings',
-    'mail_system',
+function mailsystem_clear(array $setting) {
+  $config = config('system.mail');
+  $config->setData(
     array_merge(
       mailsystem_defaults(),
       array_diff_key(array_diff(mailsystem_get(), $setting), $setting)
     )
   );
+  $config->save();
+  $config_mailsystem = config('mailsystem.settings');
+  foreach (array_keys($setting) as $key) {
+    $config_mailsystem->clear( 'mailsystem_delegate.' . $key);
+  }
+  $config_mailsystem->save();
+}
+
+/**
+ * Save settings for the delegate mail system for a given mail-id.
+ *
+ * @param $id is the machine-readable module name optionally followed by '_'
+ *       and a key.
+ * @param $map An associative array whose keys are the names of methods
+ *       defined by MailSystemInterface and whose values are the names of
+ *       the class to use for that method.
+ *
+ * @return A string specifying the name of the delegator class.
+ */
+function mailsystem_delegate_set_mailsystem_settings($id, $settings) {
+  config_set('mailsystem.settings', 'mailsystem_delegate.' . $id, $settings);
+  return 'MailsystemDelegateMailSystem';
+}
+
+/**
+ * Returns an MailSystemInterface class instance for a given action.
+ *
+ *  of a class implementing the MailSystemInterface
+ * responsible for performing the given action.
+ *
+ * @param string $module
+ *   The machine-readable module name.
+ * @param string $key
+ *   The email key.
+ * @param string $action
+ *   The name of the MailSystemInterface method to be invoked. Should be one of:
+ *   - format: Format a message composed by backdrop_mail() prior to sending.
+ *   - mail: Send a message composed by backdrop_mail().
+ *
+ * @return MailSystemInterface
+ *
+ * @see backdrop_mail_system().
+ */
+function _mailsystem_delegate_get_mailsystem($module, $key, $action) {
+  $instances = &backdrop_static(__FUNCTION__, array());
+
+  // Try to use custom settings defined for the message's module and key.
+  $settings = config_get('mailsystem.settings', 'mailsystem_delegate.' . $module . '_' . $key);
+  if ($settings === NULL) {
+    // Try to use custom settings defined for the message's module.
+    $settings = config_get('mailsystem.settings', 'mailsystem_delegate.' . $module);
+  }
+  if ($settings === NULL) {
+    // Try to use the configured site-wide default mail system settings.
+    $settings = config_get('mailsystem.settings', 'mailsystem_delegate.' . mailsystem_default_id());
+  }
+
+  // Use the class configured for the given action.
+  if ($settings && isset($settings[$action])) {
+    $class = $settings[$action];
+  }
+  else {
+    $mailsystems = mailsystem_get();
+    $class = $mailsystems[mailsystem_default_id()];
+
+    // Fallback to backdrop default in order to prevent an infinite recursion.
+    if ($class == 'MailsystemDelegateMailSystem') {
+      $class = mailsystem_default_value();
+    }
+  }
+
+  if (empty($instances[$class])) {
+    $interfaces = class_implements($class);
+    if (isset($interfaces['MailSystemInterface'])) {
+      $instances[$class] = new $class();
+    }
+    else {
+      throw new Exception(t('Class %class does not implement interface %interface', array('%class' => $class, '%interface' => 'MailSystemInterface')));
+    }
+  }
+  return $instances[$class];
 }
 
 /**
  * Returns a list of classes which implement MailSystemInterface.
+ *
+ * This method assumes that all classes which implement MailSystemInterface
+ * have filenames containing '.mail.' or class names containing 'MailSystem'.
  */
-function &mailsystem_get_classes()
-{
-  $mailsystem_classes = array();
-  $mail_classes = array();
+function mailsystem_get_classes() {
+  $mailsystem_classes = &backdrop_static(__FUNCTION__);
+  if (!isset($mailsystem_classes)) {
+    foreach (module_implements('autoload_info') as $module) {
+      $function = $module . '_autoload_info';
+      if ($module) {
+        $modulepath = BACKDROP_ROOT . '/' . backdrop_get_path('module', $module);
+      }
+      $implements = $function();
+      foreach ($implements as $classname => $path) {
+        if (!strpos($classname, 'Delegate')
+          && (strpos($classname, 'MailSystem') || strpos($path, '.mail.'))) {
+          $mail_classes[$classname] = $modulepath . '/' . $path;
+        }
+      }
+    }
 
-  // Backdrop solution from https://github.com/backdrop-contrib/mailsystem/issues/1
-  foreach (module_implements('autoload_info') as $module) {
-    $function = $module . '_autoload_info';
-    if ($module) {
-      $modulepath = BACKDROP_ROOT . '/' . backdrop_get_path('module', $module);
-    }
-    $implements = $function();
-    foreach ($implements as $classname => $path) {
-      if (!strpos($classname, 'Delegate')
-        && (strpos($classname, 'MailSystem') || strpos($path, '.mail.'))) {
-        $mail_classes[$classname] = $modulepath . '/' . $path;
-      }
-    }
-  }
-  // use a config setting for current mail options
-  $mail_system_options = array();
-  foreach ($mail_classes as $class => $path) {
-    $mail_system_options[$class] = $class;
-  }
-  config_set('mailsystem.settings', 'mail_system_options', $mail_system_options);
-  // now check whether we already have each class listed in config
-  // if not, add it as a default and load it
-  // also, check that those listed in config do still exist
-  $config_classes = config_get('mailsystem.settings', 'mail_system');
-  $all_classes = array();
-  foreach ($mail_classes as $classname => $classfile) {
-    if (empty($config_classes[$classname])) {
-      // needs to be added to config
-      // add to array $all_classes
+    $mailsystem_classes = array();
+    foreach ($mail_classes as $classname => $classfile) {
       if (file_exists($classfile)) {
-        $all_classes[$classname] = 1;
-      }
-    } else {
-      // add existing class and setting to $mailsystem_classes
-      $mailsystem_classes[$classname] = $config_classes[$classname];
-    }
-  }
-  // now process those to be added
-  foreach ($all_classes as $classname => $autoload) {
-    if ($autoload == 1) {
-      $mailsystem_classes[$classname] = 'DefaultMailSystem';
-    }
-  }
-  // now check for missing classes
-  if (is_array($config_classes)) {
-    foreach ($config_classes as $classname) {
-      if (!class_exists($classname)) {
-        $mailsystem_classes[$classname] = "";
+        $interfaces = class_implements($classname);
+        if (isset($interfaces['MailSystemInterface'])) {
+          $mailsystem_classes[$classname] = $classname;
+        }
       }
     }
+    ksort($mailsystem_classes);
   }
-  ksort($mailsystem_classes);
-  config_set('mailsystem.settings', 'mail_system', $mailsystem_classes);
   return $mailsystem_classes;
 }
 
-
 /**
- * Implements hook_theme_registry_alter().
- */
-function mailsystem_theme_registry_alter(&$theme_registry)
-{
+* Implements hook_theme_registry_alter().
+*/
+function mailsystem_theme_registry_alter(&$theme_registry) {
   module_load_include('inc', 'mailsystem', 'mailsystem.theme');
   return mailsystem_theme_theme_registry_alter($theme_registry);
 }
 
 /**
- * Retrieves the key of the theme used to render the emails.
- *
- * @todo Add some kind of hook to let other modules alter this behavior.
- */
-function mailsystem_get_mail_theme()
-{
+* Retrieves the key of the theme used to render the emails.
+*
+* @todo Add some kind of hook to let other modules alter this behavior.
+*/
+function mailsystem_get_mail_theme() {
   global $theme_key;
   $theme = config_get('mailsystem.settings', 'mailsystem_theme');
   switch ($theme) {
@@ -374,12 +332,19 @@ function mailsystem_get_mail_theme()
 }
 
 /**
- * Implements hook_autoload_info().
-
+ * Implements hook_system_info_alter().
+ *
+ * Prevent the module from being disabled while the mail_system variable is
+ * still using the MailsystemDelegateMailSystem class.
  */
-function mailsystem_autoload_info()
-{
-  return array(
-    'MailsystemDelegateMailSystem' => 'MailsystemDelegateMailSystem',
-  );
+function mailsystem_system_info_alter(&$info, $file, $type) {
+  if ($type == 'module' && $file->name == 'mailsystem') {
+    $mail_system = mailsystem_get();
+    foreach ($mail_system as $key => $class) {
+      if ($class == 'MailsystemDelegateMailSystem') {
+        $info['required'] = TRUE;
+        $info['explanation'] = t('<em>Mail System</em> cannot be disabled until each custom setting on its <a href="@url">configure page</a> is either removed, or uses the same class for both its formatting and delivery class.', array('@url' => url('admin/config/system/mailsystem')));
+      }
+    }
+  }
 }
