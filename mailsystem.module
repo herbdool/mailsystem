@@ -285,7 +285,8 @@ function &mailsystem_get_classes()
     }
     $implements = $function();
     foreach ($implements as $classname => $path) {
-      if (strpos($classname, 'MailSystem') and !strpos($classname, 'Delegate')) {
+      if (!strpos($classname, 'Delegate')
+        && (strpos($classname, 'MailSystem') || strpos($path, '.mail.'))) {
         $mail_classes[$classname] = $modulepath . '/' . $path;
       }
     }
