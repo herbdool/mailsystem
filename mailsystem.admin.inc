@@ -10,17 +10,10 @@
  */
 function mailsystem_admin_settings() {
   $args = array(
-    '!interface' => url('https://api.backdropcms.org/api/backdrop/core%21includes%21mail.inc/interface/MailSystemInterface/1'),
-    '@interface' => 'MailSystemInterface',
-    '!format' => url('https://api.backdropcms.org/api/backdrop/core%21includes%21mail.inc/function/MailSystemInterface%3A%3Aformat/1'),
-    '@format' => 'format()',
-    '!mail' => url('https://api.backdropcms.org/api/backdrop/core%21includes%21mail.inc/function/MailSystemInterface%3A%3Amail/1'),
     '!hook_mail' => 'https://api.backdropcms.org/api/backdrop/core%21modules%21system%21system.api.php/function/hook_mail/1',
     '@mail' => 'mail()',
     '!default_class' => url('https://api.backdropcms.org/api/backdrop/core%21modules%21system%21system.mail.inc/class/DefaultMailSystem/1'),
     '@default_class' => mailsystem_default_value(),
-    '%module' => 'module',
-    '%key' => 'key',
   );
 
   $mail_system = mailsystem_read_settings();
@@ -31,9 +24,19 @@ function mailsystem_admin_settings() {
   $form['mailsystem'] = array(
     '#type' => 'fieldset',
     '#title' => t('Mail System Settings'),
-    '#description' => t('Backdrop provides a default <a href="!interface"><code>@interface</code></a> class called <a href="!default_class"><code>@default_class</code></a>. Modules may provide additional classes. Each <a href="!interface"><code>@interface</code></a> class may be associated with one or more identifiers, composed of a %module and an optional %key. Each email being sent also has a %module and a %key. To decide which class to use, Backdrop uses the following search order: <ol><li>The class associated with the %module and %key, if any.</li><li>The class associated with the %module, if any.</li><li>The site-wide default <a href="!interface"><code>@interface</code></a> class.</li></ol>', $args),
+    '#description' => t('Backdrop provides a default method for formatting and delivering emails across the site. The default method formats the emails as plain text and delivers the emails using PHP\'s mail function. Contributed modules may provide additional methods for formatting, delivering, or both. For instance, a module can provide formatting as rich-text emails with images and attachments. Or a module can integrate with a more robust third-party email service for delivering the emails.'),
     '#collapsible' => FALSE,
     '#tree' => TRUE,
+  );
+  $module_info = '<ul>';
+  foreach ($delivery_classes['descriptions'] as $module => $description) {
+    $module_info .= '<li><strong>' . $module . '</strong>: ';
+    $module_info .= $description . '</li>';
+  }
+  $module_info .= '</ul>';
+  $form['mailsystem']['modules'] = array(
+    '#type' => 'help',
+    '#markup' => t('You can choose from any of the following enabled modules which implement email functionality:') . $module_info,
   );
 
   // Generate a list of themes which may used to render emails.
@@ -50,8 +53,8 @@ function mailsystem_admin_settings() {
   }
   $form['mailsystem']['mailsystem_theme'] = array(
       '#type' => 'select',
-      '#title' => t('Theme to render the emails'),
-      '#description' => t('Select the theme that will be used to render the emails. This can be either the current theme, the default theme, the domain theme or any active theme.'),
+      '#title' => t('Theme to render rich text emails'),
+      '#description' => t('Select the theme that will be used to render rich text emails. This can be either the current theme, the default theme, the domain theme or any active theme.'),
       '#options' => $theme_options,
       '#default_value' => config_get('mailsystem.settings', 'mailsystem_theme'),
   );
@@ -63,40 +66,45 @@ function mailsystem_admin_settings() {
   $form['mailsystem'][mailsystem_default_id()]['mail'] = array(
     '#type' => 'select',
     '#title' => t('Delivery'),
-    '#options' => $delivery_classes,
+    '#options' => $delivery_classes['labels'],
     '#default_value' => $mail_system[mailsystem_default_id()]['mail'],
     '#description' => t('Class used to send the mail'),
   );
   $form['mailsystem'][mailsystem_default_id()]['format'] = array(
     '#type' => 'select',
     '#title' => t('Formatting'),
-    '#options' => $formatter_classes,
+    '#options' => $formatter_classes['labels'],
     '#default_value' => $mail_system[mailsystem_default_id()]['format'],
     '#description' => t('Class used to format the body of the mail'),
   );
 
   unset($mail_system[mailsystem_default_id()]);
 
+  $form['mailsystem']['custom-settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Custom settings',
+    '#description' => t('Optionally set formatting and delivery methods for each module that sends out email, for example, event calendar notifications or contact form emails. Each module that sends out emails sets an identifier, and can further set one or more optional keys for finer-grained email settings. To decide which methods to use, Backdrop goes from the specific to the general. If no specific identifiers are set up then the site-wide default is used. The search order: <ol><li>The methods associated with the module and key, if any.</li><li>The method associated with the module, if any.</li><li>The site-wide defaults.</li></ol> For more technical information see <a href="!default_class"><code>@default_class</code></a> and <a href="!hook_mail"><code>hook_mail</code></a>.', $args),
+  );
   foreach ($mail_system as $id => $settings) {
-    $form['mailsystem'][$id] = array(
+    $form['mailsystem']['custom-settings'][$id] = array(
       '#type' => 'fieldset',
       '#title' => t('Custom settings for mail-id %id', array('%id' => $id)),
     );
-    $form['mailsystem'][$id]['mail'] = array(
+    $form['mailsystem']['custom-settings'][$id]['mail'] = array(
       '#type' => 'select',
       '#title' => t('Delivery'),
-      '#options' => $delivery_classes,
+      '#options' => $delivery_classes['labels'],
       '#default_value' => $settings['mail'],
       '#description' => t('Class used to send the mail'),
     );
-    $form['mailsystem'][$id]['format'] = array(
+    $form['mailsystem']['custom-settings'][$id]['format'] = array(
       '#type' => 'select',
       '#title' => t('Formatting'),
-      '#options' => $formatter_classes,
+      '#options' => $formatter_classes['labels'],
       '#default_value' => $settings['format'],
       '#description' => t('Class used to format the body of the mail'),
     );
-    $form['mailsystem'][$id]['submit'] = array(
+    $form['mailsystem']['custom-settings'][$id]['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Remove custom settings for mail-id @id', array('@id' => $id)),
       '#submit' => array('mailsystem_admin_remove_setting_submit'),
@@ -127,13 +135,13 @@ function mailsystem_admin_settings() {
   $form['mailsystem']['add-custom-settings']['mail'] = array(
     '#type' => 'select',
     '#title' => t('Delivery'),
-    '#options' => $delivery_classes,
+    '#options' => $delivery_classes['labels'],
     '#description' => t('Class used to send the mail'),
   );
   $form['mailsystem']['add-custom-settings']['format'] = array(
     '#type' => 'select',
     '#title' => t('Formatting'),
-    '#options' => $formatter_classes,
+    '#options' => $formatter_classes['labels'],
     '#description' => t('Class used to format the body of the mail'),
   );
   $form['mailsystem']['add-custom-settings']['submit'] = array(

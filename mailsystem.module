@@ -276,6 +276,7 @@ function mailsystem_get_classes() {
         if (!strpos($classname, 'Delegate')
           && (strpos($classname, 'MailSystem') || strpos($path, '.mail.'))) {
           $mail_classes[$classname] = $modulepath . '/' . $path;
+          $mailsystem_class_info[$classname] = mailsystem_get_class_info($classname, $module);
         }
       }
     }
@@ -285,11 +286,13 @@ function mailsystem_get_classes() {
       if (file_exists($classfile)) {
         $interfaces = class_implements($classname);
         if (isset($interfaces['MailSystemInterface'])) {
-          $mailsystem_classes[$classname] = $classname;
+          $mailsystem_classes['labels'][$classname] = $mailsystem_class_info[$classname]['label'];
+          $mailsystem_classes['descriptions'][$mailsystem_class_info[$classname]['label']] = $mailsystem_class_info[$classname]['description'];
         }
       }
     }
-    ksort($mailsystem_classes);
+    asort($mailsystem_classes['labels']);
+    ksort($mailsystem_classes['descriptions']);
   }
   return $mailsystem_classes;
 }
@@ -332,6 +335,38 @@ function mailsystem_get_mail_theme() {
 }
 
 /**
+ * Get the mailsystem class label.
+ * Use the module name and description.
+ *
+ * @param $classname
+ *   The name of the class.
+ * @param $module
+ *   The module name.
+ * @return An array of label and description.
+ *
+ * @todo Create a new hook so modules can specify the info directly.
+ */
+function mailsystem_get_class_info($classname, $module) {
+  $module_info = system_get_info('module', $module);
+  $mail_class_info = array(
+    'label' => $module_info['name'],
+    'description' => t($module_info['description']),
+  );
+  // For most modules there's only one class that implements
+  // MailsystemInterface. For System module we need to manually set the
+  // label and description since there are two classes.
+  if ($classname == 'DefaultMailSystem') {
+    $mail_class_info['label'] = 'Default';
+    $mail_class_info['description'] = t('The default Backdrop mail backend using PHP\'s mail function.');
+  }
+  if ($classname == 'TestingMailSystem') {
+    $mail_class_info['label'] = 'Testing';
+    $mail_class_info['description'] = t('A mail sending implementation that captures sent messages to a variable.');
+  }
+  return $mail_class_info;
+}
+
+/**
  * Implements hook_system_info_alter().
  *
  * Prevent the module from being disabled while the mail_system variable is
@@ -343,7 +378,7 @@ function mailsystem_system_info_alter(&$info, $file, $type) {
     foreach ($mail_system as $key => $class) {
       if ($class == 'MailsystemDelegateMailSystem') {
         $info['required'] = TRUE;
-        $info['explanation'] = t('<em>Mail System</em> cannot be disabled until each custom setting on its <a href="@url">configure page</a> is either removed, or uses the same class for both its formatting and delivery class.', array('@url' => url('admin/config/system/mailsystem')));
+        $info['explanation'] = t('<em>Mail System</em> cannot be disabled until each custom setting on its <a href="@url">configure page</a> is either removed, or uses the same method for both formatting and delivery.', array('@url' => url('admin/config/system/mailsystem')));
       }
     }
   }
