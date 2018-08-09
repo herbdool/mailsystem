@@ -10,7 +10,7 @@ function mailsystem_requirements($phase) {
   $t = get_t();
 
   if ($phase == 'runtime') {
-    $available_classes = mailsystem_get_classes();
+    $available_classes = mailsystem_get_classes()['labels'];
     $settings = mailsystem_read_settings();
     // Collect missing classes by comparing the classes used in the settings to
     // the available ones.
